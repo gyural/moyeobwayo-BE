@@ -2,8 +2,9 @@ spring:
   jpa:
     database: postgresql
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: update  # 테이블 자동 생성 및 업데이트
+      # ddl-auto: create # 기존 테이블 삭제 후 새로 생성
+    show-sql: true  # SQL 쿼리 로그 콘솔 출력
   datasource:
     hikari:
       maximum-pool-size: 4
@@ -11,3 +12,7 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always  # 데이터 초기화 O
+      # mode: never # 데이터 초기화 X
