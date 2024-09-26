@@ -15,6 +15,7 @@ public class KakaoProfile {
 
     private String profile_image;
     private String nickname;
+    //acctoken을 저장할 예정
     private String kakao_id;
     private boolean alarm_off;
 

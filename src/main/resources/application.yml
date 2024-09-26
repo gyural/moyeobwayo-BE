@@ -1,4 +1,8 @@
 spring:
+  jackson:
+    time-zone: Asia/Seoul
+  application:
+    name: moyeobwayo
   jpa:
     database: postgresql
     hibernate:

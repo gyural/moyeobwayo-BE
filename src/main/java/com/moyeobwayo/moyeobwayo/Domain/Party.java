@@ -1,10 +1,12 @@
 package com.moyeobwayo.moyeobwayo.Domain;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 @Entity
 @Getter
@@ -28,4 +30,9 @@ public class Party {
 
     @OneToMany(mappedBy = "party")
     private List<DateEntity> dates;
+
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
+    }
 }

@@ -1,5 +1,6 @@
 package com.moyeobwayo.moyeobwayo.Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,13 @@ public class UserEntity {
     @OneToMany(mappedBy = "userEntity")
     private List<Alarm> alarms;
 
-    @OneToMany(mappedBy = "userEntity")
-    private List<Timeslot> timeslots;
+    //양방향 관계 필요 없고 무한루프를 유발함
+    //@OneToMany(mappedBy = "userEntity")
+    //@JsonIgnore // Timeslot에서 UserEntity를 참조할 때 무시
+    //private List<Timeslot> timeslots;
+
+    @ManyToOne
+    @JoinColumn(name="party_id")
+    private Party party;
+
 }
