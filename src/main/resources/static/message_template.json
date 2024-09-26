@@ -1,0 +1,32 @@
+{
+  "object_type": "feed",
+  "content": {
+    "title": "{{party_title}} 일정이 확정되었어요",
+    "description": "시간 {{complete_time}} \n장소 : {{location}}",
+    "image_url": "https://mud-kage.kakao.com/dn/NTmhS/btqfEUdFAUf/FjKzkZsnoeE4o19klTOVI1/openlink_640x640s.jpg",
+    "image_width": 640,
+    "image_height": 640,
+    "link": {
+      "web_url": "http://www.daum.net",
+      "mobile_web_url": "http://m.daum.net",
+      "android_execution_params": "contentId=100",
+      "ios_execution_params": "contentId=100"
+    }
+  },
+  "buttons": [
+    {
+      "title": "웹으로 이동",
+      "link": {
+        "web_url": "http://www.daum.net",
+        "mobile_web_url": "http://m.daum.net"
+      }
+    },
+    {
+      "title": "앱으로 이동",
+      "link": {
+        "android_execution_params": "contentId=100",
+        "ios_execution_params": "contentId=100"
+      }
+    }
+  ]
+}

@@ -56,7 +56,7 @@ public class PartyService {
                     System.out.println("User ID: " + user.getUser_name());
                 }
                 // 메시지 전송
-                sendCompleteMsg(possibleUsers, party);
+                sendCompleteMsg(possibleUsers, party, reqDate);
                 partyRepository.save(party);
                 return ResponseEntity.ok(party);
             } catch (Exception e) {
@@ -92,8 +92,8 @@ public class PartyService {
         // 특정 시간 범위 안에 있는 UserEntity 조회
         return timeslotRepository.findUsersByDateAndTime(targetDateID, targetDate);
     }
-    public void sendCompleteMsg (List<UserEntity> targetUsers, Party party){
+    public void sendCompleteMsg (List<UserEntity> targetUsers, Party party, Date completeDate){
         // kakao 확정 메시지 보내기
-        kakaoUserService.sendKakaoCompletMesage(targetUsers);
+        kakaoUserService.sendKakaoCompletMesage(targetUsers, party, completeDate);
     }
 }
