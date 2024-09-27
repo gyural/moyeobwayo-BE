@@ -15,7 +15,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "kakao_user_id")
     private KakaoProfile kakaoProfile; // 해당 table의 기본키를 참조
 
