@@ -21,7 +21,4 @@ public class KakaoProfile {
 
     private boolean kakao_message_allow;
     private boolean alarm_off;
-
-    @OneToOne(mappedBy = "kakaoProfile")
-    private UserEntity userEntity;
 }
