@@ -1,11 +1,7 @@
 package com.moyeobwayo.moyeobwayo.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import com.moyeobwayo.moyeobwayo.Domain.KakaoProfile;
@@ -19,14 +15,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.Map;
 
 @Service
 public class KakaoUserService {
@@ -56,8 +48,8 @@ public class KakaoUserService {
 
             // 2. JSON 템플릿에서 값을 동적으로 대체
             String message = template.replace("{{party_title}}", party.getParty_name())
-                    .replace("{{complete_time}}", formatDate(completeDate));
-                    //.replace("{{complete_date}}", formatDate(completeDate));
+                    .replace("{{complete_time}}", formatDate(completeDate))
+                    .replace("{{location}}", "미정");
 
             // 3. 요청 헤더 설정
             HttpHeaders headers = new HttpHeaders();
@@ -65,11 +57,11 @@ public class KakaoUserService {
             headers.set("Authorization", "Bearer " + kakaoUser.getAccess_token());
 
             // 4. 요청 바디 설정
-            Map<String, String> body = new HashMap<>();
-            body.put("template_object", message);
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("template_object", message);
 
             // 5. 요청 엔터티 생성 (헤더와 바디 포함)
-            HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
             // 6. RestTemplate 생성
             RestTemplate restTemplate = new RestTemplate();
@@ -79,11 +71,29 @@ public class KakaoUserService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
 
             // 8. 응답 처리
-            if (response.getStatusCode().is2xxSuccessful()) {
+            int statusCode = response.getStatusCodeValue();
+            if (statusCode >= 200 && statusCode < 300) {
                 System.out.println("Message sent successfully!");
                 System.out.println("Response Body: " + response.getBody());
+            } else if (statusCode == 401) {
+                //권한 요청 로직 설정
+                System.out.println("Error: 401 Unauthorized - Access token may be invalid or expired. Attempting to refresh the token.");
+            } else if (statusCode == 403) {
+                refreshKakaoAccToken(kakaoUser);
+                Integer targetID = kakaoUser.getKakao_user_id();
+                Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
+                if (newKakaoProfile.isPresent()) {
+                    if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){
+                        System.out.println("Kakao profile NOT updated!");
+                    }else{
+                        sendCompleteMessage(newKakaoProfile.get(), party, completeDate);
+                    }
+                }
+                sendCompleteMessage(kakaoUser, party, completeDate);
+
+                System.out.println("Error: 403 Forbidden - Access denied. Please check your permissions or the access token.");
             } else {
-                System.out.println("Error: " + response.getStatusCode());
+                System.out.println("Error: " + statusCode);
                 System.out.println("Response Body: " + response.getBody());
             }
 
@@ -139,7 +149,7 @@ public class KakaoUserService {
             kakaoProfile.setAccess_token(newAccToekn);
             //DB에 반영
             try{
-                kakaoProfileRepository.save(kakaoProfile);
+                kakaoProfileRepository.save(kakaoProfile)                ;
             }
             catch (Exception e){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

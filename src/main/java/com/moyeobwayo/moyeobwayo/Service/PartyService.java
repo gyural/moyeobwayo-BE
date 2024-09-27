@@ -10,6 +10,7 @@ import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -89,6 +90,10 @@ public class PartyService {
     public List<UserEntity> getPossibleUsers( Party party, Date targetDate) {
         // DateID 조회
         Integer targetDateID = dateEntityRepsitory.findDateIdByPartyAndSelectedDate(party.getParty_id(), targetDate);
+        if (targetDateID == null) {
+            System.out.println("targetDateID is null");
+            return new ArrayList<UserEntity>();  // 빈 배열 반환
+        }
         // 특정 시간 범위 안에 있는 UserEntity 조회
         return timeslotRepository.findUsersByDateAndTime(targetDateID, targetDate);
     }
