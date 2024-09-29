@@ -22,13 +22,15 @@ public class Party {
     private String party_name;
     private String party_description;
     private Date start_date;
-    private Date end_date;
+    @Column(name = "end_date") // jpa를 통한 삭제를 위해(카멜형으로)
+    private Date endDate;
     private Date decision_date;
 
     @OneToMany(mappedBy = "party")
     private List<Alarm> alarms;
 
-    @OneToMany(mappedBy = "party")
+    // @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DateEntity> dates;
 
     @PostConstruct

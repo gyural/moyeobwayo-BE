@@ -4,7 +4,7 @@ import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCreateRequest;
 import com.moyeobwayo.moyeobwayo.Service.PartyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.moyeobwayo.moyeobwayo.Domain.DTO.AvailableTime;
+import com.moyeobwayo.moyeobwayo.Domain.dto.AvailableTime;
 
 import java.util.List;
 

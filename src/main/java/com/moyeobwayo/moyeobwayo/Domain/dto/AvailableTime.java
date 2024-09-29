@@ -1,4 +1,4 @@
-package com.moyeobwayo.moyeobwayo.Domain.DTO;
+package com.moyeobwayo.moyeobwayo.Domain.dto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

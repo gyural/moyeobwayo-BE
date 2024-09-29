@@ -23,7 +23,8 @@ public class DateEntity {
     @JsonIgnore  // Party를 직렬화에서 제외하여 순환 참조 방지
     private Party party;
 
-    @OneToMany(mappedBy = "date")
+    // @OneToMany(mappedBy = "date")
+    @OneToMany(mappedBy = "date", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Timeslot> timeslots;
 
     @PostConstruct
