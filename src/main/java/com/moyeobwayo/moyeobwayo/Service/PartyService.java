@@ -2,8 +2,8 @@ package com.moyeobwayo.moyeobwayo.Service;
 
 import com.moyeobwayo.moyeobwayo.Domain.DateEntity;
 import com.moyeobwayo.moyeobwayo.Domain.Party;
-import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
-import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCompleteRequest;
+import com.moyeobwayo.moyeobwayo.Domain.Timeslot;
+import com.moyeobwayo.moyeobwayo.Domain.DTO.TimeSlot;
 import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCreateRequest;
 import com.moyeobwayo.moyeobwayo.Repository.DateEntityRepsitory;
 import com.moyeobwayo.moyeobwayo.Repository.PartyRepository;
@@ -11,10 +11,17 @@ import com.moyeobwayo.moyeobwayo.Repository.TimeslotRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.moyeobwayo.moyeobwayo.Domain.DTO.AvailableTime;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import java.util.*;
 
 @Service
 public class PartyService {
@@ -38,7 +45,7 @@ public class PartyService {
         this.userRepository = userRepository;
         this.timeslotRepository = timeslotRepository;
         this.dateEntityRepsitory = dateEntityRepsitory;
-        // his.kakaoUserService = kakaoUserService;
+        // this.kakaoUserService = kakaoUserService;
     }
 
 //    /**
@@ -175,5 +182,72 @@ public class PartyService {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
+    }
+
+    /**
+     * 특정 파티의 가용 여부 높은 시간을 찾는 메서드
+     * @param partyId
+     * @return List<AvailableTime>
+     */
+    public List<AvailableTime> findAvailableTimesForParty(int partyId) {
+        // 1. Party 객체 찾기
+        Party party = partyRepository.findById(partyId).orElseThrow(() -> new IllegalArgumentException("Party not found"));
+
+        // 2. Party와 연결된 모든 DateEntity의 Timeslot 가져오기
+        List<TimeSlot> timeSlots = new ArrayList<>();
+        for (DateEntity date : party.getDates()) {
+            List<Timeslot> timeslots = timeslotRepository.findAllByDate(date);
+            for (Timeslot slot : timeslots) {
+                // Convert Timeslot to TimeSlot DTO
+                LocalDateTime start = slot.getSelected_start_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime end = slot.getSelected_end_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                timeSlots.add(new TimeSlot(slot.getUserEntity().getUser_name(), start, end));
+            }
+        }
+
+        // 3. 가능한 시간대 찾기
+        return findAvailableTimes(timeSlots);
+    }
+
+    /**
+     * 주어진 TimeSlot 리스트를 이용하여 가능한 시간을 찾는 메서드
+     * @param timeSlots
+     * @return List<AvailableTime>
+     */
+    public List<AvailableTime> findAvailableTimes(List<TimeSlot> timeSlots) {
+        // 모든 시작 및 종료 시간 추출
+        Set<LocalDateTime> timePoints = new HashSet<>();
+        for (TimeSlot slot : timeSlots) {
+            timePoints.add(slot.getStart());
+            timePoints.add(slot.getEnd());
+        }
+
+        // 시간 순서대로 정렬
+        List<LocalDateTime> sortedTimePoints = new ArrayList<>(timePoints);
+        Collections.sort(sortedTimePoints);
+
+        // 가능한 모든 시간 범위 생성
+        List<AvailableTime> availableTimes = new ArrayList<>();
+        for (int i = 0; i < sortedTimePoints.size() - 1; i++) {
+            LocalDateTime start = sortedTimePoints.get(i);
+            LocalDateTime end = sortedTimePoints.get(i + 1);
+            List<String> usersAvailable = new ArrayList<>();
+
+            // 각 사용자에 대해 해당 시간 범위에 가능한지 확인
+            for (TimeSlot slot : timeSlots) {
+                if (!slot.getStart().isAfter(start) && !slot.getEnd().isBefore(end)) {
+                    usersAvailable.add(slot.getUser());
+                }
+            }
+
+            if (!usersAvailable.isEmpty()) {
+                availableTimes.add(new AvailableTime(start, end, usersAvailable));
+            }
+        }
+
+        // 가능한 사용자 수에 따라 정렬
+        availableTimes.sort((a, b) -> b.getUsers().size() - a.getUsers().size());
+
+        return availableTimes;
     }
 }
