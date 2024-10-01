@@ -3,7 +3,7 @@
   "content": {
     "title": "{{party_title}} 일정이 확정되었어요",
     "description": "시간 {{complete_time}} \n장소 : {{location}}",
-    "image_url": "https://mud-kage.kakao.com/dn/NTmhS/btqfEUdFAUf/FjKzkZsnoeE4o19klTOVI1/openlink_640x640s.jpg",
+    "image_url": "https://res.cloudinary.com/dhabktrg9/image/upload/v1727406661/fv1zgcdvdrcsfptalrrc.png",
     "image_width": 640,
     "image_height": 640,
     "link": {

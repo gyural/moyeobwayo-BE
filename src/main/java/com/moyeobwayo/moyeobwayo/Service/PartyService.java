@@ -21,8 +21,11 @@ public class PartyService {
     private TimeslotRepository timeslotRepository;
     private DateEntityRepsitory dateEntityRepsitory;
     private KakaoUserService kakaoUserService;
-    public PartyService(PartyRepository partyRepository, UserEntityRepository userRepository, TimeslotRepository timeslotRepository,
-                        DateEntityRepsitory dateEntityRepsitory, KakaoUserService kakaoUserService) {
+    public PartyService(PartyRepository partyRepository,
+                        UserEntityRepository userRepository,
+                        TimeslotRepository timeslotRepository,
+                        DateEntityRepsitory dateEntityRepsitory,
+                        KakaoUserService kakaoUserService) {
         this.partyRepository = partyRepository;
         this.userRepository = userRepository;
         this.timeslotRepository = timeslotRepository;
