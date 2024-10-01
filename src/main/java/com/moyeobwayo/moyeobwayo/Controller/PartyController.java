@@ -1,5 +1,6 @@
 package com.moyeobwayo.moyeobwayo.Controller;
 
+import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCompleteRequest;
 import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCreateRequest;
 import com.moyeobwayo.moyeobwayo.Service.PartyService;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,10 @@ public class PartyController {
         this.partyService = partyService;
     }
 
-//    @PostMapping("/complete/{id}")
-//    public ResponseEntity<?> completeParty(@PathVariable int id, @RequestBody PartyCompleteRequest partyCompleteRequest) {
-//        return partyService.partyComplete(id, partyCompleteRequest);
-//    }
+    @PostMapping("/complete/{id}")
+    public ResponseEntity<?> completeParty(@PathVariable int id, @RequestBody PartyCompleteRequest partyCompleteRequest) {
+        return partyService.partyComplete(id, partyCompleteRequest);
+    }
 
     /**
      * 파티 생성
