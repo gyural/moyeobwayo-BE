@@ -2,6 +2,7 @@ package com.moyeobwayo.moyeobwayo.Domain.dto;
 
 import java.time.LocalDateTime;
 
+
 public class TimeSlot {
     String user;
     LocalDateTime start;
