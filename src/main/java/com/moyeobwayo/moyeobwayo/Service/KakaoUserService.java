@@ -167,6 +167,68 @@ public class KakaoUserService {
         // JSON 파싱하여 access_token 추출 (간단한 구현)
         return responseBody.split("\"access_token\":\"")[1].split("\"")[0];
     }
+
+
+    // 🌟 카카오 유저생성 및 조회로직
+
+    public KakaoProfile createUser(String code) {
+        // 1. 인가 코드로 액세스 토큰 가져오기
+        String accessToken = getAccessTokenFromKakao(code);
+
+        // 2. 액세스 토큰으로 사용자 정보 조회
+        KakaoProfile kakaoProfile = getKakaoUserProfile(accessToken);
+
+        // 3. DB에 저장
+        return kakaoProfileRepository.save(kakaoProfile);
+    }
+
+    // 인가 코드를 통해 액세스 토큰 발급 로직 추가
+    private String getAccessTokenFromKakao(String code) {
+        String url = "https://kauth.kakao.com/oauth/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", KAKAO_REST_KEY); // 카카오 REST API 키
+        params.add("redirect_uri", "http://127.0.0.1:3000/login/oauth/callback/kakao"); // 설정된 리다이렉트 URI
+        params.add("code", code);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+        // 액세스 토큰 추출
+        return extractAccessTokenFromResponse(response.getBody());
+    }
+
+    // 액세스 토큰으로 카카오 사용자 프로필 정보 조회
+    private KakaoProfile getKakaoUserProfile(String accessToken) {
+        String url = "https://kapi.kakao.com/v2/user/me";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        Map<String, Object> body = response.getBody();
+
+        // 사용자 정보 추출 및 KakaoProfile 객체 생성
+        Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+        KakaoProfile kakaoProfile = new KakaoProfile();
+        kakaoProfile.setKakao_user_id((int) body.get("id")); // 카카오 사용자 ID 설정
+        kakaoProfile.setNickname((String) profile.get("nickname"));
+        kakaoProfile.setProfile_image((String) profile.get("profile_image_url"));
+        kakaoProfile.setAccess_token(accessToken);
+
+        return kakaoProfile;
+    }
 }
 
 
