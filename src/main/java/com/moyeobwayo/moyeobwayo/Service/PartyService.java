@@ -41,8 +41,12 @@ public class PartyService {
      * @param dateEntityRepsitory
      * @param kakaoUserService
      */
-    public PartyService(PartyRepository partyRepository, UserEntityRepository userRepository, TimeslotRepository timeslotRepository,
-                        DateEntityRepsitory dateEntityRepsitory, KakaoUserService kakaoUserService) {
+
+    public PartyService(PartyRepository partyRepository,
+                        UserEntityRepository userRepository,
+                        TimeslotRepository timeslotRepository,
+                        DateEntityRepsitory dateEntityRepsitory,
+                        KakaoUserService kakaoUserService) {
         this.partyRepository = partyRepository;
         this.userRepository = userRepository;
         this.timeslotRepository = timeslotRepository;

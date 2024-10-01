@@ -1,4 +1,7 @@
 spring:
+  springdoc:
+    api-doc:
+      enable: false
   jackson:
     time-zone: Asia/Seoul
   application:
