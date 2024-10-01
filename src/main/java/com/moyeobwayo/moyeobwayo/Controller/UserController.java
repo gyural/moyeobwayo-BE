@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.moyeobwayo.moyeobwayo.Domain.request.user.UserLoginRequest;
 
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -23,13 +25,15 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest request) {
-        UserEntity user = userService.login(request.getUserName(), request.getPassword());
-        if (user != null) {
-            // 로그인 성공
-            return ResponseEntity.ok(user);
+        // 서비스 호출하여 사용자 인증
+        Optional<UserEntity> user = userService.login(request.getUserName(), request.getPassword(), request.getPartyId());
+
+        if (user.isPresent()) {
+            // 로그인 성공 시, 사용자 정보를 반환
+            return ResponseEntity.ok(user.get());
         } else {
-            // 로그인 실패
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed: Invalid username or password");
+            // 로그인 실패 시, 오류 메시지 반환
+            return ResponseEntity.status(401).body("Login failed: Duplicate username in the same party or invalid credentials");
         }
     }
 }
