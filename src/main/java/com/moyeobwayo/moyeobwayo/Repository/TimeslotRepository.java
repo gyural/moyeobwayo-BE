@@ -1,5 +1,6 @@
 package com.moyeobwayo.moyeobwayo.Repository;
 
+import com.moyeobwayo.moyeobwayo.Domain.DateEntity;
 import com.moyeobwayo.moyeobwayo.Domain.Timeslot;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,6 @@ public interface TimeslotRepository extends JpaRepository<Timeslot, Integer> {
     List<UserEntity> findUsersByDateAndTime(
             @Param("dateId") int dateId,
             @Param("selectedTime") Date selectedTime);
+
+    List<Timeslot> findAllByDate(DateEntity date); // 임시 추가(심동근)
 }

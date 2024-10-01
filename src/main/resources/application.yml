@@ -23,3 +23,7 @@ spring:
     init:
       mode: always  # 데이터 초기화 O
       # mode: never # 데이터 초기화 X
+
+# KAKAO_REST_KEY 추가
+kakao:
+  rest-key: your_kakao_rest_key_value

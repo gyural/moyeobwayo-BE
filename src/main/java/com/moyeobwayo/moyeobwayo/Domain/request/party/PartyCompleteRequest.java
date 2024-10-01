@@ -1,3 +1,6 @@
+/**
+ * 목적: controller가 json으로 받은 body를 하나의 객체로 묶어 처리하기 위해 다음과 같은 클래스 생성
+ */
 package com.moyeobwayo.moyeobwayo.Domain.request.party;
 
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
