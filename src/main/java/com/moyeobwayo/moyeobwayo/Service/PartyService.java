@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import java.util.*;
+import java.util.Map;
 
 @Service
 public class PartyService {
@@ -103,7 +104,7 @@ public class PartyService {
     // 필수값 검증 모듈
     public ResponseEntity<?> validateRequireValues(PartyCompleteRequest partyCompleteRequest) {
         if (partyCompleteRequest.getUserId() == null || partyCompleteRequest.getUserId().isEmpty()) {
-            return ResponseEntity.badRequest().body("Error: User ID is required.");
+            return ResponseEntity.badRequest().body(Map.of("message", "Error: User ID is required."));
         }
         if (partyCompleteRequest.getCompleteTime() == null) {
             return ResponseEntity.badRequest().body("Error: Complete time is required.");
