@@ -17,7 +17,4 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, Integer>
     // 수정된 쿼리 메서드: @Param 어노테이션의 변수명을 정확히 맞춤
     @Query("SELECT u FROM UserEntity u WHERE u.user_name = :user_name AND u.party.party_id = :party_id")
     Optional<UserEntity> findUserInSameParty(@Param("user_name") String user_name, @Param("party_id") int party_id);
-
-
-    // 2. 사용자 이름과 비밀번호를 기반으로 사용자 조회
 }
