@@ -85,10 +85,6 @@ public class PartyService {
             party.setDecision_date(reqDate);
             try {
                 List<UserEntity> possibleUsers = getPossibleUsers(party, reqDate);
-                // 각 유저의 ID 출력
-                for (UserEntity user : possibleUsers) {
-                    System.out.println("User ID: " + user.getUser_name());
-                }
                 // 메시지 전송
                 sendCompleteMsg(possibleUsers, party, reqDate);
                 partyRepository.save(party);
@@ -97,17 +93,20 @@ public class PartyService {
                 return ResponseEntity.badRequest().body("Error: " + e.getMessage());
             }
         }else{
-            return ResponseEntity.badRequest().body("Error: No such user");
+            // 확정 시간 DB 반영
+            Date reqDate = partyCompleteRequest.getCompleteTime();
+            party.setDecision_date(reqDate);
+            return ResponseEntity.ok(party);
         }
     }
 
     // 필수값 검증 모듈
     public ResponseEntity<?> validateRequireValues(PartyCompleteRequest partyCompleteRequest) {
-        if (partyCompleteRequest.getUserId() == null || partyCompleteRequest.getUserId().isEmpty()) {
+        if (partyCompleteRequest.getUserId() == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Error: User ID is required."));
         }
         if (partyCompleteRequest.getCompleteTime() == null) {
-            return ResponseEntity.badRequest().body("Error: Complete time is required.");
+            return ResponseEntity.badRequest().body(Map.of("message",  "Complete time is required."));
         }
         return null;  // 검증 통과 시 null 반환
     }
@@ -116,7 +115,7 @@ public class PartyService {
     public ResponseEntity<?> validatePartyExist(int id) {
         Party party = partyRepository.findById(id).orElse(null);
         if (party == null) {
-            return ResponseEntity.badRequest().body("Error: Party not found");
+            return ResponseEntity.badRequest().body(Map.of("message", "Error: Party not found"));
         }
         return null;  // 파티가 존재하면 null 반환
     }
@@ -125,7 +124,6 @@ public class PartyService {
         // DateID 조회
         Integer targetDateID = dateEntityRepsitory.findDateIdByPartyAndSelectedDate(party.getParty_id(), targetDate);
         if (targetDateID == null) {
-            System.out.println("targetDateID is null");
             return new ArrayList<UserEntity>();  // 빈 배열 반환
         }
         // 특정 시간 범위 안에 있는 UserEntity 조회
