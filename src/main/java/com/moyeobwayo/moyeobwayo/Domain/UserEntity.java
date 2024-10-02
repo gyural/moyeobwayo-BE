@@ -1,6 +1,7 @@
 package com.moyeobwayo.moyeobwayo.Domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class UserEntity {
     //@JsonIgnore // Timeslot에서 UserEntity를 참조할 때 무시
     //private List<Timeslot> timeslots;
 
+    @JsonProperty("party")
     @ManyToOne
     @JoinColumn(name="party_id", nullable = true)
     private Party party;
