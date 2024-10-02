@@ -23,8 +23,11 @@ public class UserService {
         if (existingUser.isPresent()) {
             return Optional.empty();  // 중복된 이름이 있는 경우 로그인 실패
         }
-
+        UserEntity newUser = new UserEntity();
+        newUser.setUser_name(userName);
+        newUser.setPassword(password);
+        newUser = userRepository.save(newUser);
         // 2. 사용자 이름과 비밀번호로 로그인
-        return userRepository.findByUserNameAndPassword(userName, password);
+        return Optional.of(newUser);
     }
 }
