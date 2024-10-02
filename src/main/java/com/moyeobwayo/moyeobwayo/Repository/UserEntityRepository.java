@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
+public interface UserEntityRepository extends JpaRepository<UserEntity, Integer> {
     List<UserEntity> findUserEntitiesByParty(Party party);
 
     // 수정된 쿼리 메서드: @Param 어노테이션의 변수명을 정확히 맞춤
