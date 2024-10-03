@@ -1,4 +1,5 @@
 package com.moyeobwayo.moyeobwayo.Service;
+import java.io.BufferedReader;
 import java.io.IOException;
 
 import java.nio.file.Files;
@@ -7,6 +8,7 @@ import com.moyeobwayo.moyeobwayo.Domain.KakaoProfile;
 import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Repository.KakaoProfileRepository;
+import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,11 @@ import java.time.ZoneId;
 public class KakaoUserService {
 
     private final KakaoProfileRepository kakaoProfileRepository;
+    private final UserEntityRepository userEntityRepository;
 
-    public KakaoUserService(KakaoProfileRepository kakaoProfileRepository) {
+    public KakaoUserService(KakaoProfileRepository kakaoProfileRepository, UserEntityRepository userEntityRepository) {
         this.kakaoProfileRepository = kakaoProfileRepository;
+        this.userEntityRepository = userEntityRepository;
     }
     @Value("${KAKAO_REST_KEY}")
     private String KAKAO_REST_KEY;
@@ -72,21 +76,28 @@ public class KakaoUserService {
             // 8. 응답 처리
             int statusCode = response.getStatusCodeValue();
             if (statusCode >= 200 && statusCode < 300) {
+                System.out.println("Message sent successfully!");
+                System.out.println("Response Body: " + response.getBody());
             } else if (statusCode == 401) {
                 //권한 요청 로직 설정
+                System.out.println("Error: 401 Unauthorized - Access token may be invalid or expired. Attempting to refresh the token.");
             } else if (statusCode == 403) {
                 refreshKakaoAccToken(kakaoUser);
-                Integer targetID = kakaoUser.getKakao_user_id();
+                Long targetID = kakaoUser.getKakao_user_id();
                 Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
                 if (newKakaoProfile.isPresent()) {
                     if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){
+                        System.out.println("Kakao profile NOT updated!");
                     }else{
                         sendCompleteMessage(newKakaoProfile.get(), party, completeDate);
                     }
                 }
                 sendCompleteMessage(kakaoUser, party, completeDate);
 
+                System.out.println("Error: 403 Forbidden - Access denied. Please check your permissions or the access token.");
             } else {
+                System.out.println("Error: " + statusCode);
+                System.out.println("Response Body: " + response.getBody());
             }
 
         } catch (Exception e) {
@@ -162,20 +173,26 @@ public class KakaoUserService {
 
 
     // 🌟 카카오 유저생성 및 조회로직
-
     public KakaoProfile createUser(String code) {
-        // 1. 인가 코드로 액세스 토큰 가져오기
-        String accessToken = getAccessTokenFromKakao(code);
+        // 1. 인가 코드로 액세스 토큰, 리프레시 토큰, 만료 시간 가져오기
+        Map<String, Object> tokenInfo = getAccessTokenFromKakao(code);
 
         // 2. 액세스 토큰으로 사용자 정보 조회
+        String accessToken = (String) tokenInfo.get("access_token");
         KakaoProfile kakaoProfile = getKakaoUserProfile(accessToken);
 
-        // 3. DB에 저장
+        // 3. 액세스 토큰 및 리프레시 토큰, 만료 시간 설정
+        kakaoProfile.setAccess_token(accessToken);
+        kakaoProfile.setRefresh_token((String) tokenInfo.get("refresh_token"));
+        kakaoProfile.setExpires_in(convertToLong(tokenInfo.get("expires_in")));
+        kakaoProfile.setRefresh_token_expires_in(convertToLong(tokenInfo.get("refresh_token_expires_in")));
+
+        // 4. DB에 저장
         return kakaoProfileRepository.save(kakaoProfile);
     }
 
-    // 인가 코드를 통해 액세스 토큰 발급 로직 추가
-    private String getAccessTokenFromKakao(String code) {
+    // 인가 코드를 통해 액세스 토큰, 리프레시 토큰, 만료 시간 정보 가져오기
+    private Map<String, Object> getAccessTokenFromKakao(String code) {
         String url = "https://kauth.kakao.com/oauth/token";
 
         HttpHeaders headers = new HttpHeaders();
@@ -190,10 +207,8 @@ public class KakaoUserService {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
-        // 액세스 토큰 추출
-        return extractAccessTokenFromResponse(response.getBody());
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, request, Map.class);
+        return response.getBody();  // 전체 응답을 반환하여 필요한 값들을 추출
     }
 
     // 액세스 토큰으로 카카오 사용자 프로필 정보 조회
@@ -214,12 +229,59 @@ public class KakaoUserService {
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
         KakaoProfile kakaoProfile = new KakaoProfile();
-        kakaoProfile.setKakao_user_id((int) body.get("id")); // 카카오 사용자 ID 설정
+
+        // ★ 여기서 id를 설정할 때, 정확하게 `longValue()`를 사용하여 변환합니다.
+        if (body.get("id") instanceof Integer) {
+            // 만약 `id` 값이 Integer일 경우 Long으로 명시적으로 변환
+            kakaoProfile.setKakao_user_id(((Integer) body.get("id")).longValue());
+        } else if (body.get("id") instanceof Long) {
+            // 만약 `id` 값이 이미 Long 타입이라면 그대로 사용
+            kakaoProfile.setKakao_user_id((Long) body.get("id"));
+        } else {
+            // 예상치 못한 타입일 경우 예외 처리
+            throw new IllegalArgumentException("Unexpected ID type: " + body.get("id").getClass());
+        }
         kakaoProfile.setNickname((String) profile.get("nickname"));
         kakaoProfile.setProfile_image((String) profile.get("profile_image_url"));
-        kakaoProfile.setAccess_token(accessToken);
 
         return kakaoProfile;
+    }
+
+    private Long convertToLong(Object value) {
+        if (value instanceof Integer) {
+            return ((Integer) value).longValue(); // Integer를 Long으로 변환
+        } else if (value instanceof Long) {
+            return (Long) value; // 이미 Long 타입이면 그대로 반환
+        } else {
+            throw new IllegalArgumentException("Cannot convert value to Long: " + value);
+        }
+    }
+
+    // 🌟 새로운 linkUserToKakaoWithKakaoId 메서드
+    public boolean linkUserToKakaoWithKakaoId(int currentUserId, int partyId, Long kakaoUserId) {
+        // 1. 전달받은 currentUserId와 partyId로 UserEntity 조회
+        Optional<UserEntity> userOptional = userEntityRepository.findByIdAndPartyId(currentUserId, partyId);
+        if (userOptional.isEmpty()) {
+            return false;  // 해당 UserEntity가 존재하지 않으면 연결 불가
+        }
+
+        UserEntity userEntity = userOptional.get();
+
+        // 2. DB에서 전달받은 kakao_user_id로 KakaoProfile 조회
+        Optional<KakaoProfile> kakaoProfileOptional = kakaoProfileRepository.findById(kakaoUserId);
+        if (kakaoProfileOptional.isEmpty()) {
+            return false;  // 해당 KakaoProfile이 없으면 연결 불가
+        }
+
+        KakaoProfile kakaoProfile = kakaoProfileOptional.get();
+
+        // 3. UserEntity에 KakaoProfile 연결
+        userEntity.setKakaoProfile(kakaoProfile);
+
+        // 4. DB에 UserEntity 저장
+        userEntityRepository.save(userEntity);
+
+        return true;
     }
 }
 
