@@ -8,6 +8,7 @@ import com.moyeobwayo.moyeobwayo.Domain.KakaoProfile;
 import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Repository.KakaoProfileRepository;
+import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,11 @@ import java.time.ZoneId;
 public class KakaoUserService {
 
     private final KakaoProfileRepository kakaoProfileRepository;
+    private final UserEntityRepository userEntityRepository;
 
-    public KakaoUserService(KakaoProfileRepository kakaoProfileRepository) {
+    public KakaoUserService(KakaoProfileRepository kakaoProfileRepository, UserEntityRepository userEntityRepository) {
         this.kakaoProfileRepository = kakaoProfileRepository;
+        this.userEntityRepository = userEntityRepository;
     }
     @Value("${KAKAO_REST_KEY}")
     private String KAKAO_REST_KEY;
@@ -244,7 +247,6 @@ public class KakaoUserService {
         return kakaoProfile;
     }
 
-
     private Long convertToLong(Object value) {
         if (value instanceof Integer) {
             return ((Integer) value).longValue(); // Integer를 Long으로 변환
@@ -253,6 +255,33 @@ public class KakaoUserService {
         } else {
             throw new IllegalArgumentException("Cannot convert value to Long: " + value);
         }
+    }
+
+    // 🌟 새로운 linkUserToKakaoWithKakaoId 메서드
+    public boolean linkUserToKakaoWithKakaoId(int currentUserId, int partyId, Long kakaoUserId) {
+        // 1. 전달받은 currentUserId와 partyId로 UserEntity 조회
+        Optional<UserEntity> userOptional = userEntityRepository.findByIdAndPartyId(currentUserId, partyId);
+        if (userOptional.isEmpty()) {
+            return false;  // 해당 UserEntity가 존재하지 않으면 연결 불가
+        }
+
+        UserEntity userEntity = userOptional.get();
+
+        // 2. DB에서 전달받은 kakao_user_id로 KakaoProfile 조회
+        Optional<KakaoProfile> kakaoProfileOptional = kakaoProfileRepository.findById(kakaoUserId);
+        if (kakaoProfileOptional.isEmpty()) {
+            return false;  // 해당 KakaoProfile이 없으면 연결 불가
+        }
+
+        KakaoProfile kakaoProfile = kakaoProfileOptional.get();
+
+        // 3. UserEntity에 KakaoProfile 연결
+        userEntity.setKakaoProfile(kakaoProfile);
+
+        // 4. DB에 UserEntity 저장
+        userEntityRepository.save(userEntity);
+
+        return true;
     }
 }
 
