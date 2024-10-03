@@ -33,15 +33,7 @@ public class PartyService {
     private DateEntityRepsitory dateEntityRepsitory;
     private KakaoUserService kakaoUserService;
 
-    /**
-     * 의존성 주입
-     * @param partyRepository
-     * @param userRepository
-     * @param timeslotRepository
-     * @param dateEntityRepsitory
-     * @param kakaoUserService
-     */
-
+    // 의존성 주입
     public PartyService(PartyRepository partyRepository,
                         UserEntityRepository userRepository,
                         TimeslotRepository timeslotRepository,
@@ -260,7 +252,6 @@ public class PartyService {
     /**
      * 만료된 파티를 삭제하는 메서드(url을 통해 접근하지 않기에 컨트롤러 없음)
      */
-
     public void deleteExpiredParties() {
         LocalDateTime currentDateTime = LocalDateTime.now(); // 현재 시간을 LocalDateTime으로 가져오기
         Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant()); // LocalDateTime을 Date로 변환

@@ -26,7 +26,7 @@ public class PartyTest {
         party.setTarget_num(10);
         party.setCurrent_num(5);
         party.setStart_date(new Date());
-        party.setEnd_date(new Date());
+        party.setEndDate(new Date());
 
         partyRepository.save(party);
         //User 2명 세팅
