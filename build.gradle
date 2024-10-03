@@ -20,12 +20,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter' // Spring Boot 스타터
+	implementation 'org.postgresql:postgresql:42.7.3'
+	implementation 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'javax.persistence:javax.persistence-api:2.2'
+
+	// Hibernate Validator (선택 사항)
+	implementation 'org.hibernate.validator:hibernate-validator:6.2.0.Final'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
+	implementation 'org.glassfish:javax.el:3.0.0'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.postgresql:postgresql:42.7.3'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()

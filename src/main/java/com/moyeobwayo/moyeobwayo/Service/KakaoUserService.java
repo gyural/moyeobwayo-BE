@@ -80,7 +80,7 @@ public class KakaoUserService {
                 System.out.println("Error: 401 Unauthorized - Access token may be invalid or expired. Attempting to refresh the token.");
             } else if (statusCode == 403) {
                 refreshKakaoAccToken(kakaoUser);
-                Integer targetID = kakaoUser.getKakao_user_id();
+                Integer targetID = kakaoUser.getKakaoUserId();
                 Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
                 if (newKakaoProfile.isPresent()) {
                     if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){

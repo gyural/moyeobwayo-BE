@@ -31,6 +31,7 @@ public class Party {
     @OneToMany(mappedBy = "party")
     private List<DateEntity> dates;
 
+
     @PostConstruct
     public void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));

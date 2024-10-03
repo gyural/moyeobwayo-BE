@@ -11,14 +11,14 @@ public class KakaoProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int kakao_user_id;
+    private int kakaoUserId;
 
-    private String profile_image;
+    private String profileImage;
     private String nickname;
 
     private String access_token;
     private String refresh_token;
 
-    private boolean kakao_message_allow;
+    private boolean kakaoMessageAllow;
     private boolean alarm_off;
 }
