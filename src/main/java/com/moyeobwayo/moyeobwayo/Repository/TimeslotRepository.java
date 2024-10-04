@@ -17,4 +17,8 @@ public interface TimeslotRepository extends JpaRepository<Timeslot, Integer> {
             @Param("selectedTime") Date selectedTime);
 
     List<Timeslot> findAllByDate(DateEntity date); // 임시 추가(심동근)
+
+    // 특정 파티에 속한 타임슬롯을 조회하는 쿼리 추가
+    @Query("SELECT t FROM Timeslot t WHERE t.date.party.party_id = :partyId")
+    List<Timeslot> findByPartyId(@Param("partyId") int partyId);
 }

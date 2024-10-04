@@ -15,8 +15,10 @@ public class PartyCleanupScheduler {
 
     // @Scheduled(cron = "0 * * * * ?") // 1분마다 실행
     // @Scheduled(cron = "*/10 * * * * ?")  // 10초마다 실행
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void cleanUpExpiredParties() {
-        partyService.deleteExpiredParties();
-    }
+
+    // 오류나서 일단 주석처리
+//    @Scheduled(cron = "0 0 0 * * ?")
+//    public void cleanUpExpiredParties() {
+//        partyService.deleteExpiredParties();
+//    }
 }
