@@ -12,6 +12,7 @@ import java.util.TimeZone;
 @Getter
 @Setter
 public class Timeslot {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int slot_id;
@@ -21,13 +22,31 @@ public class Timeslot {
 
     @ManyToOne
     @JoinColumn(name = "date_id")
-    @JsonIgnore  // Party를 직렬화에서 제외하여 순환 참조 방지
+    @JsonIgnore  // 순환 참조 방지
     private DateEntity date;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore  // Party를 직렬화에서 제외하여 순환 참조 방지
+    @JsonIgnore  // 순환 참조 방지
     private UserEntity userEntity;
+
+    // 유저 ID 반환
+    @Transient
+    public int getUserId() {
+        return userEntity != null ? userEntity.getUser_id() : 0;
+    }
+
+    // 파티 ID 반환
+    @Transient
+    public int getPartyId() {
+        return date != null && date.getParty() != null ? date.getParty().getParty_id() : 0;
+    }
+
+    // 날짜 ID 반환
+    @Transient
+    public int getDateId() {
+        return date != null ? date.getDate_id() : 0;
+    }
 
     @PostConstruct
     public void init() {
