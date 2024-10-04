@@ -167,4 +167,5 @@ public class KakaoUserService {
         // JSON 파싱하여 access_token 추출 (간단한 구현)
         return responseBody.split("\"access_token\":\"")[1].split("\"")[0];
     }
+
 }
