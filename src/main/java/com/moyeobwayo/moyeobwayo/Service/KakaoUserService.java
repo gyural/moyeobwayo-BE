@@ -78,24 +78,25 @@ public class KakaoUserService {
             } else if (statusCode == 401) {
                 //권한 요청 로직 설정
                 System.out.println("Error: 401 Unauthorized - Access token may be invalid or expired. Attempting to refresh the token.");
-            } else if (statusCode == 403) {
-                refreshKakaoAccToken(kakaoUser);
-                Integer targetID = kakaoUser.getKakao_user_id();
-                Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
-                if (newKakaoProfile.isPresent()) {
-                    if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){
-                        System.out.println("Kakao profile NOT updated!");
-                    }else{
-                        sendCompleteMessage(newKakaoProfile.get(), party, completeDate);
-                    }
-                }
-                sendCompleteMessage(kakaoUser, party, completeDate);
-
-                System.out.println("Error: 403 Forbidden - Access denied. Please check your permissions or the access token.");
             } else {
                 System.out.println("Error: " + statusCode);
                 System.out.println("Response Body: " + response.getBody());
             }
+//            else if (statusCode == 403) {
+//                refreshKakaoAccToken(kakaoUser);
+//                Integer targetID = kakaoUser.getKakao_user_id();
+//                Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
+//                if (newKakaoProfile.isPresent()) {
+//                    if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){
+//                        System.out.println("Kakao profile NOT updated!");
+//                    }else{
+//                        sendCompleteMessage(newKakaoProfile.get(), party, completeDate);
+//                    }
+//                }
+//                sendCompleteMessage(kakaoUser, party, completeDate);
+//
+//                System.out.println("Error: 403 Forbidden - Access denied. Please check your permissions or the access token.");
+//            }
 
         } catch (Exception e) {
             e.printStackTrace();
