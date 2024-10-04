@@ -27,6 +27,7 @@ dependencies {
 	implementation 'org.postgresql:postgresql:42.7.3'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'com.jayway.jsonpath:json-path'
 }
 
 tasks.named('test') {
