@@ -19,7 +19,7 @@ public class DateEntity {
     private java.util.Date selected_date;
 
     @ManyToOne
-    @JoinColumn(name = "party_iD")
+    @JoinColumn(name = "party_id")
     @JsonIgnore  // Party를 직렬화에서 제외하여 순환 참조 방지
     private Party party;
 
