@@ -22,14 +22,14 @@ public class KakaoUserServiceTest {
     @Test
     public void testRefreshKakaoAccToken() {
         // 실제 DB에서 KakaoProfile 가져오기 (테스트를 위한 더미 데이터가 있는지 확인해야 함)
-        KakaoProfile kakaoProfile = kakaoProfileRepository.findById(1).orElseThrow(() ->
+        KakaoProfile kakaoProfile = kakaoProfileRepository.findById(1L).orElseThrow(() ->
                 new RuntimeException("No KakaoProfile found for testing"));
 
         // refreshKakaoAccToken 호출
         ResponseEntity<?> response = kakaoTokenService.refreshKakaoAccToken(kakaoProfile);
 
         // 결과 확인 (응답이 성공적인지 확인)
-        KakaoProfile newKakaoProfile = kakaoProfileRepository.findById(1).orElseThrow(() ->
+        KakaoProfile newKakaoProfile = kakaoProfileRepository.findById(1L).orElseThrow(() ->
                 new RuntimeException("No KakaoProfile found for testing"));
         // 결과 확인 (응답이 성공적인지 확인)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

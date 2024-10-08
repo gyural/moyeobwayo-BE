@@ -9,6 +9,7 @@ import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Repository.KakaoProfileRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -281,6 +282,22 @@ public class KakaoUserService {
         // 4. DB에 UserEntity 저장
         userEntityRepository.save(userEntity);
 
+        return true;
+    }
+
+
+    @Transactional
+    public boolean updateKakaoUserSettings(Long kakaoUserId, boolean kakaoMessageAllow, boolean alarmOff) {
+        Optional<KakaoProfile> optionalProfile = kakaoProfileRepository.findById(kakaoUserId);
+        if (optionalProfile.isEmpty()) {
+            return false;
+        }
+
+        KakaoProfile kakaoProfile = optionalProfile.get();
+        kakaoProfile.setKakao_message_allow(kakaoMessageAllow);  // 전달받은 값으로 설정
+        kakaoProfile.setAlarm_off(alarmOff);                     // 전달받은 값으로 설정
+
+        kakaoProfileRepository.save(kakaoProfile);  // DB에 저장하여 반영
         return true;
     }
 }
