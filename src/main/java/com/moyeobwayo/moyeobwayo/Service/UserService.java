@@ -28,7 +28,6 @@ public class UserService {
 
     // 로그인 로직: 파티 내 중복 이름 확인 및 로그인 처리
     public Optional<UserEntity> login(String userName, String password, int partyId, boolean isKakao) {
-//        logger.info("Login request received: userName = {}, partyId = {}, isKakao = {}", userName, partyId, isKakao);
 
         // 파티 ID로 해당 파티 조회
         Optional<Party> partyOptional = partyRepository.findById(partyId);
@@ -52,10 +51,8 @@ public class UserService {
         // 새로운 사용자 저장
         newUser = userRepository.save(newUser);
 
-//        logger.info("isKakao flag: {}", isKakao);
         // 🌟 만약 isKakao가 true라면 알람 테이블에 새로운 알람 추가
         if (isKakao) {
-//            logger.info("Creating new alarm for Kakao user...");
             System.out.println("Creating new Alarm object...");
             Alarm newAlarm = new Alarm();
             newAlarm.setUserEntity(newUser);
