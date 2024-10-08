@@ -22,6 +22,7 @@ public class Party {
     private String party_name;
     private String party_description;
     private Date start_date;
+    private String location_name;
     @Column(name = "end_date") // jpa를 통한 삭제를 위해(카멜형으로)
     private Date endDate;
     private Date decision_date;

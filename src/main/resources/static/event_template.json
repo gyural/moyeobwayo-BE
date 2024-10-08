@@ -1,0 +1,20 @@
+{
+  "title": "모여봐요 {{party_title}}",
+  "time": {
+    "start_at": "{{start_at}}",
+    "end_at": "{{end_at}}",
+    "time_zone": "Asia/Seoul",
+    "all_day": false,
+    "lunar": false
+  },
+  "description": "{{party_description}}",
+  "location": {
+    "name": "{{location_name}}",
+    "location_id": 18577297,
+    "address": "고려대학교 세종캠퍼스",
+    "latitude": 37.39570088983171,
+    "longitude": 127.1104335101161
+  },
+  "color": "LAVENDER",
+  "reminders": "{{reminders}}"
+}

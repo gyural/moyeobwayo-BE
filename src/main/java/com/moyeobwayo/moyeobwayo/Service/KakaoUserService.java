@@ -9,17 +9,25 @@ import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Repository.KakaoProfileRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.ZoneId;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class KakaoUserService {
@@ -43,85 +51,111 @@ public class KakaoUserService {
             }
         }
     }
+    // 1. Date 객체를 받아 UTC로 변환하는 함수
+    public static String convertToUTC(Date date) {
+        // Date를 Instant로 변환
+        Instant instant = date.toInstant();
+        // UTC에서 ZonedDateTime으로 변환
+        ZonedDateTime utcTime = instant.atZone(ZoneId.of("UTC"));
+
+        // 포맷터 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        return utcTime.format(formatter)+"Z";
+    }
+
+    // 2. Date 객체로부터 1시간 뒤의 endTime을 UTC로 계산하는 함수
+    public static String getEndTimeFromStartTime(Date date) {
+        // Date를 Instant로 변환
+        Instant instant = date.toInstant();
+        // 서울 시간대에서 ZonedDateTime으로 변환
+        ZonedDateTime utcTime = instant.atZone(ZoneId.of("UTC")).plusHours(1);
+        // 1시간 뒤의 종료 시간 계산
+        // 포맷터 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        return utcTime.format(formatter)+"Z";
+    }
+
     //한 카카오 유저에게 메시지 전송
     public void sendCompleteMessage(KakaoProfile kakaoUser, Party party, Date completeDate) {
-        try {
-            // 1. JSON 템플릿 로드
-            String template = loadJsonTemplate("src/main/resources/static/message_template.json");
 
-            // 2. JSON 템플릿에서 값을 동적으로 대체
-            String message = template.replace("{{party_title}}", party.getParty_name())
-                    .replace("{{complete_time}}", formatDate(completeDate))
-                    .replace("{{location}}", "미정");
+        // 1. JSON 템플릿 로드및 기본값 설정
+        String startTimeUTC = convertToUTC(completeDate);
+        String endTimeUTC = getEndTimeFromStartTime(completeDate);
 
-            // 3. 요청 헤더 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            headers.set("Authorization", "Bearer " + kakaoUser.getAccess_token());
+        JSONObject schedule = new JSONObject();
+        schedule.put("title", "모여봐요 " + party.getParty_name());
+        // 시간 설정
+        JSONObject time = new JSONObject();
+        time.put("start_at", startTimeUTC);
+        time.put("end_at", endTimeUTC);
+        time.put("time_zone", "Asia/Seoul");
+        schedule.put("time", time);
+        // 설명 설정
+        schedule.put("description", party.getParty_description() != null ? party.getParty_description() : "기본 설명입니다.");
+        // 위치 설정
+        JSONObject location = new JSONObject();
+        location.put("name", party.getLocation_name() != null ? party.getLocation_name() : "장소 미정");
+        location.put("location_id", 18577297);
+        location.put("address", "고려대학교 세종캠퍼스");
+        location.put("latitude", 36.610964);
+        location.put("longitude", 127.286750);
+        schedule.put("location", location);
 
-            // 4. 요청 바디 설정
-            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-            body.add("template_object", message);
+        // reminders 설정
+        List<Integer> testReminders = Arrays.asList(getNearRemindMinute(completeDate), 60);
+        JSONArray remindersArray = new JSONArray();
+        for (Integer reminder : testReminders) {
+            remindersArray.add(reminder);
+        }
+        schedule.put("reminders", remindersArray); // reminders 추가
+        //모여봐요 메인컬러와 가장 유사한 색 선정
+        schedule.put("color", "LAVENDER");
+        // 3. 요청 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        headers.set("Authorization", "Bearer " + kakaoUser.getAccess_token());
 
-            // 5. 요청 엔터티 생성 (헤더와 바디 포함)
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+        // 4. 요청 바디 설정
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("event", schedule.toJSONString());
 
-            // 6. RestTemplate 생성
-            RestTemplate restTemplate = new RestTemplate();
+        // 5. 요청 엔터티 생성 (헤더와 바디 포함)
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-            // 7. API 호출 및 응답 받기
-            String url = "https://kapi.kakao.com/v2/api/talk/memo/default/send";
+        // 6. RestTemplate 생성
+        RestTemplate restTemplate = new RestTemplate();
+        // 7. API 호출 및 응답 받기
+        String url = "https://kapi.kakao.com/v2/api/calendar/create/event";
+        try{
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
-            // 8. 응답 처리
             int statusCode = response.getStatusCodeValue();
             if (statusCode >= 200 && statusCode < 300) {
-                System.out.println("Message sent successfully!");
-                System.out.println("Response Body: " + response.getBody());
-            } else if (statusCode == 401) {
-                //권한 요청 로직 설정
-                System.out.println("Error: 401 Unauthorized - Access token may be invalid or expired. Attempting to refresh the token.");
-            } else if (statusCode == 403) {
-                refreshKakaoAccToken(kakaoUser);
-                Long targetID = kakaoUser.getKakao_user_id();
-                Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
-                if (newKakaoProfile.isPresent()) {
-                    if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){
-                        System.out.println("Kakao profile NOT updated!");
-                    }else{
-                        sendCompleteMessage(newKakaoProfile.get(), party, completeDate);
-                    }
-                }
-                sendCompleteMessage(kakaoUser, party, completeDate);
-
-                System.out.println("Error: 403 Forbidden - Access denied. Please check your permissions or the access token.");
-            } else {
-                System.out.println("Error: " + statusCode);
-                System.out.println("Response Body: " + response.getBody());
+                //System.out.println("message send success!!");
+            }else {
+                //System.out.println("Error!!" + response.getStatusCode() + response.getBody());
             }
-
+        }catch (HttpClientErrorException e) {
+            // 클라이언트 오류 (4xx)
+            //System.out.println(e.getResponseBodyAsString());
+            if(e.getStatusCode() == HttpStatus.UNAUTHORIZED){
+                //아래 코드에서 DB값을 수정해야되어서 해당 함수가 모두 완료되고 아래 로직을 작동해야함
+                ResponseEntity<?> refreshResponse =  refreshKakaoAccToken(kakaoUser);
+                if (refreshResponse.getStatusCode().is2xxSuccessful()){
+                    String newAccToekn = extractAccessTokenFromResponse(refreshResponse.getBody().toString());
+                    kakaoUser.setAccess_token(newAccToekn);
+                    sendCompleteMessage(kakaoUser, party, completeDate);
+                }else {
+                }
+            }else if(e.getStatusCode() == HttpStatus.FORBIDDEN){
+                //로그아웃 처리 해야함
+            }
+        } catch (HttpServerErrorException e) {
+            // 서버 오류 (5xx)
+            //System.out.println(e.getResponseBodyAsString());
         } catch (Exception e) {
-            e.printStackTrace();
+            // 그 외의 모든 예외 처리
+            //System.out.println(e.getMessage());
         }
-    }
-
-    // JSON 템플릿을 로드하는 함수
-    private String loadJsonTemplate(String filePath) {
-        try {
-            return new String(Files.readAllBytes(Paths.get(filePath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    private String formatDate(Date completeDate) {
-        // Date -> LocalDateTime 변환
-        LocalDateTime localDateTime = completeDate.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-        // "MM월 dd일 HH시 mm분" 형식으로 포맷
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM월 dd일 HH시 mm분");
-        return localDateTime.format(formatter);
     }
 
     public ResponseEntity<?> refreshKakaoAccToken(KakaoProfile kakaoProfile) {
@@ -140,30 +174,38 @@ public class KakaoUserService {
 
         // 4. 요청 엔터티 생성 (헤더와 바디를 포함)
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+        try{
+            // 5. API 호출
+            String url = "https://kauth.kakao.com/oauth/token";
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
 
-        // 5. API 호출
-        String url = "https://kauth.kakao.com/oauth/token";
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+            // 6. 응답 결과 처리
+            if (response.getStatusCode().is2xxSuccessful()) {
 
-        // 6. 응답 결과 처리
-        if (response.getStatusCode().is2xxSuccessful()) {
+                String newAccToekn = extractAccessTokenFromResponse(response.getBody());
+                kakaoProfile.setAccess_token(newAccToekn);
+                //DB에 반영
+                try{
+                    kakaoProfileRepository.save(kakaoProfile);
+                }
+                catch (Exception e){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+                }
+                kakaoProfileRepository.save(kakaoProfile);
 
-            String newAccToekn = extractAccessTokenFromResponse(response.getBody());
-            kakaoProfile.setAccess_token(newAccToekn);
-            //DB에 반영
-            try{
-                kakaoProfileRepository.save(kakaoProfile)                ;
+                return ResponseEntity.ok(response.getBody());
+            } else {
+                return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
             }
-            catch (Exception e){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-            }
-            kakaoProfileRepository.save(kakaoProfile);
-
-            return ResponseEntity.ok(response.getBody());
-        } else {
-            System.out.println("Error: " + response.getStatusCode());
-            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        }catch (HttpClientErrorException e) {
+            // 클라이언트 오류 (4xx)
+        } catch (HttpServerErrorException e) {
+            // 서버 오류 (5xx)
+        } catch (Exception e) {
+            // 그 외의 모든 예외 처리
         }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
     // refreshing 응답에서 acc토큰 추출함수
     private String extractAccessTokenFromResponse(String responseBody) {
@@ -282,6 +324,26 @@ public class KakaoUserService {
         userEntityRepository.save(userEntity);
 
         return true;
+    }
+
+    public Integer getNearRemindMinute(Date targetDate) {
+        // 현재 시간 가져오기
+        Date currentDate = new Date();
+
+        // targetDate와 currentDate의 차이를 밀리초 단위로 계산
+        long differenceInMillis = targetDate.getTime() - currentDate.getTime();
+
+        // 차이를 분으로 변환
+        long differenceInMinutes = TimeUnit.MILLISECONDS.toMinutes(differenceInMillis);
+
+        // 5의 배수로 내림
+        int nearestMultipleOfFive = (int) (Math.floor(differenceInMinutes / 5.0) * 5);
+        if(nearestMultipleOfFive > 10){
+            nearestMultipleOfFive = nearestMultipleOfFive - 5;
+        }else{
+            nearestMultipleOfFive = 10;
+        }
+        return nearestMultipleOfFive;
     }
 }
 
