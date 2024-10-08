@@ -1,6 +1,7 @@
 package com.moyeobwayo.moyeobwayo.Controller;
 
 import com.moyeobwayo.moyeobwayo.Domain.Party;
+import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Service.KakaoUserPartyService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public class KakaoUserPartyController {
         try {
             // 서비스에서 kakao_user_id로 Party 조회
             int KakaoUserId = reqData.getKakaoUserId();
-            List<Party> parties = kakaoUserPartyService.getPartyByKakaoUserId(KakaoUserId);
+            List<UserEntity> parties = kakaoUserPartyService.getPartyByKakaoUserId(KakaoUserId);
             return ResponseEntity.ok(parties);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404).body(e.getMessage());

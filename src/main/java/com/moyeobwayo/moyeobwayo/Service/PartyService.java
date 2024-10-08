@@ -76,11 +76,12 @@ public class PartyService {
     // 특정 Kakao user와 연결된 파티 삭제
     public void deletePartyByKakaoUserId(int kakaoUserId) {
         // 1. 해당 Kakao user와 연결된 유저 찾기
+
         UserEntity userEntity = userRepository.findByKakaoProfile_KakaoUserId(kakaoUserId)
                 .orElseThrow(() -> new RuntimeException("No user found with this Kakao ID")); // Optional을 사용하여 예외 처리
 
         // 2. 해당 유저와 연결된 파티 찾기
-        List<Party> parties = userRepository.findPartiesByKakaoProfile_KakaoUserId(userEntity.getKakaoProfile().getKakaoUserId());
+        List<Party> parties = userRepository. findUserEntitiesPartiesByKakaoProfile_KakaoUserId(userEntity.getKakaoProfile().getKakaoUserId());
 
         if (parties.isEmpty()) {
             throw new RuntimeException("No party found for this Kakao user");
