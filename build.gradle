@@ -28,6 +28,8 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'com.jayway.jsonpath:json-path'
+	implementation 'org.slf4j:slf4j-api:1.7.36'
+	implementation 'org.slf4j:slf4j-simple:1.7.36'
 }
 
 tasks.named('test') {
