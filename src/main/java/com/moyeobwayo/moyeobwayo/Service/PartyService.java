@@ -207,25 +207,6 @@ public class PartyService {
         // 3. 가능한 시간대 찾기
         return findAvailableTimes(timeSlots);
     }
-//    public List<AvailableTime> findAvailableTimesForParty(int partyId) {
-//        // 1. Party 객체 찾기
-//        Party party = partyRepository.findById(partyId).orElseThrow(() -> new IllegalArgumentException("Party not found"));
-//
-//        // 2. Party와 연결된 모든 DateEntity의 Timeslot 가져오기
-//        List<TimeSlot> timeSlots = new ArrayList<>();
-//        for (DateEntity date : party.getDates()) {
-//            List<Timeslot> timeslots = timeslotRepository.findAllByDate(date);
-//            for (Timeslot slot : timeslots) {
-//                // Convert Timeslot to TimeSlot DTO
-//                LocalDateTime start = slot.getSelected_start_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-//                LocalDateTime end = slot.getSelected_end_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-//                timeSlots.add(new TimeSlot(slot.getUserEntity().getUser_name(), start, end));
-//            }
-//        }
-//
-//        // 3. 가능한 시간대 찾기
-//        return findAvailableTimes(timeSlots);
-//    }
 
 
     /**
@@ -273,26 +254,26 @@ public class PartyService {
     /**
      * 만료된 파티를 삭제하는 메서드(url을 통해 접근하지 않기에 컨트롤러 없음)
      */
-    public void deleteExpiredParties() {
-        LocalDateTime currentDateTime = LocalDateTime.now(); // 현재 시간을 LocalDateTime으로 가져오기
-        Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant()); // LocalDateTime을 Date로 변환
-
-        System.out.println("현재 시간: " + currentDate);
-        List<Party> expiredParties = partyRepository.findByEndDateBefore(currentDate);
-
-        if (!expiredParties.isEmpty()) {
-            partyRepository.deleteAll(expiredParties);
-            System.out.println(expiredParties.size() + "개의 만료된 파티를 삭제했습니다.");
-        } else {
-            System.out.println("삭제할 만료된 파티가 없습니다.");
-
-            // 모든 파티의 end_date를 출력
-            List<Party> allParties = partyRepository.findAll();
-            for (Party party : allParties) {
-                System.out.println("Party ID: " + party.getParty_id() + ", End Date: " + party.getEndDate());
-            }
-        }
-    }
+//    public void deleteExpiredParties() {
+//        LocalDateTime currentDateTime = LocalDateTime.now(); // 현재 시간을 LocalDateTime으로 가져오기
+//        Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant()); // LocalDateTime을 Date로 변환
+//
+//        System.out.println("현재 시간: " + currentDate);
+//        List<Party> expiredParties = partyRepository.findByEndDateBefore(currentDate);
+//
+//        if (!expiredParties.isEmpty()) {
+//            partyRepository.deleteAll(expiredParties);
+//            System.out.println(expiredParties.size() + "개의 만료된 파티를 삭제했습니다.");
+//        } else {
+//            System.out.println("삭제할 만료된 파티가 없습니다.");
+//
+//            // 모든 파티의 end_date를 출력
+//            List<Party> allParties = partyRepository.findAll();
+//            for (Party party : allParties) {
+//                System.out.println("Party ID: " + party.getParty_id() + ", End Date: " + party.getEndDate());
+//            }
+//        }
+//    }
 
     /**
      * 파티 정보 수정
