@@ -80,9 +80,10 @@ public class PartyService {
         if(targetUsers.size() > 0){
             // kakaoUser라면 리마인드 메시지 전송
             Date reqDate = partyCompleteRequest.getCompleteTime();
-            System.out.println("요청받은 시간"+reqDate);
+            String locationName = partyCompleteRequest.getLocationName() != null ? partyCompleteRequest.getLocationName() : "미정";
             // 확정 시간 DB 반영
             party.setDecision_date(reqDate);
+            party.setLocation_name(locationName);
             try {
                 List<UserEntity> possibleUsers = getPossibleUsers(party, reqDate);
                 // 메시지 전송
