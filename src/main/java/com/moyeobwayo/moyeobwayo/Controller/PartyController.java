@@ -60,8 +60,13 @@ public class PartyController {
      * @param id
      * @return
      */
+//    @GetMapping("/{id}")
+//    public ResponseEntity<?> getParty(@PathVariable int id) {
+//        List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(id);
+//        return ResponseEntity.ok(availableTimes);
+//    }
     @GetMapping("/{id}")
-    public ResponseEntity<?> getParty(@PathVariable int id) {
+    public ResponseEntity<?> getParty(@PathVariable String id) {
         List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(id);
         return ResponseEntity.ok(availableTimes);
     }

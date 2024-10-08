@@ -5,7 +5,7 @@ import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.Timeslot;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Repository.DateEntityRepsitory;
-import com.moyeobwayo.moyeobwayo.Repository.PartyRepository;
+import com.moyeobwayo.moyeobwayo.Repository.PartyStringIdRepository;  // !!!!!!!!!!! 수정
 import com.moyeobwayo.moyeobwayo.Repository.TimeslotRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import com.moyeobwayo.moyeobwayo.Service.PartyService;
@@ -28,7 +28,7 @@ public class PartyResultTest {
     private PartyService partyService;
 
     @Autowired
-    private PartyRepository partyRepository;
+    private PartyStringIdRepository partyStringIdRepository;  // 수정
 
     @Autowired
     private UserEntityRepository userRepository;
@@ -52,7 +52,7 @@ public class PartyResultTest {
         party.setEndDate(new Date(System.currentTimeMillis() + 86400000)); // 1 day later
 
         // Save the party
-        Party savedParty = partyRepository.save(party);
+        Party savedParty = partyStringIdRepository.save(party);  // 수정
 
         // Step 2: Create dates for the party
         List<DateEntity> dateEntities = new ArrayList<>();
@@ -66,7 +66,7 @@ public class PartyResultTest {
         // Save dates and set the relationship in the party
         dateEntityRepsitory.saveAll(dateEntities);
         savedParty.setDates(dateEntities);
-        partyRepository.save(savedParty); // Update the party with the dates
+        partyStringIdRepository.save(savedParty);  // 수정
 
         // Step 3: Create users
         UserEntity user1 = new UserEntity();
@@ -102,7 +102,7 @@ public class PartyResultTest {
         timeslotRepository.save(timeslot2);
 
         // Step 5: Call the service method to get the available times
-        List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(savedParty.getParty_id());
+        List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(savedParty.getParty_id());  // 수정
 
         // Step 6: Assertions to verify the results
         assertThat(availableTimes).isNotEmpty(); // 비어 있지 않은지

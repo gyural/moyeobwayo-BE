@@ -188,16 +188,16 @@ public class PartyService {
      * @param partyId
      * @return List<AvailableTime>
      */
-    public List<AvailableTime> findAvailableTimesForParty(int partyId) {
+    public List<AvailableTime> findAvailableTimesForParty(String partyId) {  // !!!!!!!!!!! 수정
         // 1. Party 객체 찾기
-        Party party = partyRepository.findById(partyId).orElseThrow(() -> new IllegalArgumentException("Party not found"));
+        Party party = partyStringIdRepository.findById(partyId)  // !!!!!!!!!!! 수정
+                .orElseThrow(() -> new IllegalArgumentException("Party not found"));
 
         // 2. Party와 연결된 모든 DateEntity의 Timeslot 가져오기
         List<TimeSlot> timeSlots = new ArrayList<>();
         for (DateEntity date : party.getDates()) {
             List<Timeslot> timeslots = timeslotRepository.findAllByDate(date);
             for (Timeslot slot : timeslots) {
-                // Convert Timeslot to TimeSlot DTO
                 LocalDateTime start = slot.getSelected_start_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 LocalDateTime end = slot.getSelected_end_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 timeSlots.add(new TimeSlot(slot.getUserEntity().getUser_name(), start, end));
@@ -207,6 +207,26 @@ public class PartyService {
         // 3. 가능한 시간대 찾기
         return findAvailableTimes(timeSlots);
     }
+//    public List<AvailableTime> findAvailableTimesForParty(int partyId) {
+//        // 1. Party 객체 찾기
+//        Party party = partyRepository.findById(partyId).orElseThrow(() -> new IllegalArgumentException("Party not found"));
+//
+//        // 2. Party와 연결된 모든 DateEntity의 Timeslot 가져오기
+//        List<TimeSlot> timeSlots = new ArrayList<>();
+//        for (DateEntity date : party.getDates()) {
+//            List<Timeslot> timeslots = timeslotRepository.findAllByDate(date);
+//            for (Timeslot slot : timeslots) {
+//                // Convert Timeslot to TimeSlot DTO
+//                LocalDateTime start = slot.getSelected_start_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+//                LocalDateTime end = slot.getSelected_end_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+//                timeSlots.add(new TimeSlot(slot.getUserEntity().getUser_name(), start, end));
+//            }
+//        }
+//
+//        // 3. 가능한 시간대 찾기
+//        return findAvailableTimes(timeSlots);
+//    }
+
 
     /**
      * 주어진 TimeSlot 리스트를 이용하여 가능한 시간을 찾는 메서드
