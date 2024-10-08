@@ -66,4 +66,16 @@ public class PartyController {
         return ResponseEntity.ok(availableTimes);
     }
 
+    /**
+     * 파티 수정
+     * PUT api/v1/party/update/{partyId}
+     * @param partyId
+     * @param partyUpdateRequest
+     * @return
+     */
+    @PutMapping("/update/{partyId}")
+    public ResponseEntity<?> updateParty(@PathVariable String partyId, @RequestBody PartyCreateRequest partyUpdateRequest) {
+        return partyService.updateParty(partyId, partyUpdateRequest);
+    }
+
 }

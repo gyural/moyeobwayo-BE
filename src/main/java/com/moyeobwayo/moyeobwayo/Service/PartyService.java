@@ -7,10 +7,7 @@ import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Domain.dto.TimeSlot;
 import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCompleteRequest;
 import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCreateRequest;
-import com.moyeobwayo.moyeobwayo.Repository.DateEntityRepsitory;
-import com.moyeobwayo.moyeobwayo.Repository.PartyRepository;
-import com.moyeobwayo.moyeobwayo.Repository.TimeslotRepository;
-import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
+import com.moyeobwayo.moyeobwayo.Repository.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.moyeobwayo.moyeobwayo.Domain.dto.AvailableTime;
@@ -27,6 +24,7 @@ import java.util.*;
 
 @Service
 public class PartyService {
+    private final PartyStringIdRepository partyStringIdRepository;
     private PartyRepository partyRepository;
     private UserEntityRepository userRepository;
     private TimeslotRepository timeslotRepository;
@@ -38,12 +36,13 @@ public class PartyService {
                         UserEntityRepository userRepository,
                         TimeslotRepository timeslotRepository,
                         DateEntityRepsitory dateEntityRepsitory,
-                        KakaoUserService kakaoUserService) {
+                        KakaoUserService kakaoUserService, PartyStringIdRepository partyStringIdRepository) {
         this.partyRepository = partyRepository;
         this.userRepository = userRepository;
         this.timeslotRepository = timeslotRepository;
         this.dateEntityRepsitory = dateEntityRepsitory;
         this.kakaoUserService = kakaoUserService;
+        this.partyStringIdRepository = partyStringIdRepository;
     }
 
     /**
@@ -112,16 +111,17 @@ public class PartyService {
         return null;  // 파티가 존재하면 null 반환
     }
     // 파티내의 목표시간에 가능한 유저리스트 반환
-    public List<UserEntity> getPossibleUsers( Party party, Date targetDate) {
+    public List<UserEntity> getPossibleUsers(Party party, Date targetDate) {
         // DateID 조회
-        Integer targetDateID = dateEntityRepsitory.findDateIdByPartyAndSelectedDate(party.getParty_id(), targetDate);
+        Integer targetDateID = dateEntityRepsitory.findDateIdByPartyAndSelectedDate(party.getParty_id(), targetDate);  // 이제 String으로 처리
         if (targetDateID == null) {
             System.out.println("targetDateID is null");
-            return new ArrayList<UserEntity>();  // 빈 배열 반환
+            return new ArrayList<>();  // 빈 배열 반환
         }
         // 특정 시간 범위 안에 있는 UserEntity 조회
         return timeslotRepository.findUsersByDateAndTime(targetDateID, targetDate);
     }
+
     public void sendCompleteMsg (List<UserEntity> targetUsers, Party party, Date completeDate){
         // kakao 확정 메시지 보내기
         kakaoUserService.sendKakaoCompletMesage(targetUsers, party, completeDate);
@@ -158,10 +158,11 @@ public class PartyService {
             party.setStart_date(partyCreateRequest.getStartTime());
             party.setEndDate(partyCreateRequest.getEndTime());
             party.setDecision_date(partyCreateRequest.getDecisionDate());
+            party.setUser_id(partyCreateRequest.getUserId());
             party= partyRepository.save(party); // db에 저장 후 저장된 객체 반환(자동 생성된 id를 가져오기 위해)
 
             // 방금 생성한 Party 테이블 튜플의 pk 가져오기
-            int party_id = party.getParty_id();
+            String party_id = party.getParty_id();
 
             // Party의 pk와 List<Date>를 이용하여 date_entity 테이블에 삽입
             List<DateEntity> dateEntities = new ArrayList<>();
@@ -273,4 +274,49 @@ public class PartyService {
         }
     }
 
+    /**
+     * 파티 정보 수정
+     * @param partyId
+     * @param partyUpdateRequest
+     * @return
+     */
+    public ResponseEntity<?> updateParty(String partyId, PartyCreateRequest partyUpdateRequest) {
+        try {
+            // 1. 파티 존재 여부 확인
+            Party existingParty = partyStringIdRepository.findById(partyId) // String 타입 partyId를 처리
+                    .orElseThrow(() -> new IllegalArgumentException("Error: Party not found"));
+
+
+            // 2. 수정할 필드 업데이트
+            existingParty.setTarget_num(partyUpdateRequest.getParticipants());
+            existingParty.setParty_name(partyUpdateRequest.getPartyTitle());
+            existingParty.setParty_description(partyUpdateRequest.getPartyDescription());
+            existingParty.setStart_date(partyUpdateRequest.getStartTime());
+            existingParty.setEndDate(partyUpdateRequest.getEndTime());
+            existingParty.setDecision_date(partyUpdateRequest.getDecisionDate());
+            existingParty.setUser_id(partyUpdateRequest.getUserId());
+
+            // 3. DateEntity 업데이트 (기존 리스트를 제거 후 새로 추가)
+            List<DateEntity> existingDates = existingParty.getDates();
+            dateEntityRepsitory.deleteAll(existingDates); // 기존 날짜 리스트 삭제
+
+            List<DateEntity> newDates = new ArrayList<>();
+            for (Date date : partyUpdateRequest.getDates()) {
+                DateEntity dateEntity = new DateEntity();
+                dateEntity.setSelected_date(date);
+                dateEntity.setParty(existingParty);
+                newDates.add(dateEntity);
+            }
+            dateEntityRepsitory.saveAll(newDates); // 새로운 날짜 리스트 저장
+
+            // 4. 파티 정보 저장 (업데이트)
+            partyRepository.save(existingParty);
+
+            // 5. 수정된 파티 정보 반환
+            return ResponseEntity.ok(existingParty);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
 }
