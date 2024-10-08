@@ -37,9 +37,8 @@ public class PartyController {
             @ApiResponse(responseCode = "404", description = "Party not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-  
     @PostMapping("/complete/{id}")  // URL에서 id를 경로 변수로 받음
-    public ResponseEntity<?> completeParty(@PathVariable int id, @RequestBody PartyCompleteRequest partyCompleteRequest) {
+    public ResponseEntity<?> completeParty(@PathVariable("id") int id, @RequestBody PartyCompleteRequest partyCompleteRequest) {
         return partyService.partyComplete(id, partyCompleteRequest);
     }
 
