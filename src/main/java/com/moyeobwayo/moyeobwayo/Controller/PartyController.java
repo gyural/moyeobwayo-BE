@@ -15,7 +15,9 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import com.moyeobwayo.moyeobwayo.Domain.dto.AvailableTime;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/party")
@@ -66,8 +68,16 @@ public class PartyController {
 //    }
     @GetMapping("/{id}")
     public ResponseEntity<?> getParty(@PathVariable String id) {
+        Party party = partyService.findPartyById(id);
         List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(id);
-        return ResponseEntity.ok(availableTimes);
+
+        // 3. 두 데이터를 하나의 Map에 담기
+        Map<String, Object> response = new HashMap<>();
+        response.put("party", party);  // 파티 정보 추가
+        response.put("availableTimes", availableTimes);  // 우선순위 시간 정보 추가
+
+        // 4. Map을 JSON으로 반환
+        return ResponseEntity.ok(response);
     }
 
     /**

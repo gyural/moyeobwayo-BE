@@ -183,6 +183,12 @@ public class PartyService {
         }
     }
 
+    public Party findPartyById(String partyId) {
+        return partyStringIdRepository.findById(partyId)
+                .orElseThrow(() -> new IllegalArgumentException("Party not found"));
+    }
+
+
     /**
      * 특정 파티의 가용 여부 높은 시간을 찾는 메서드
      * @param partyId
