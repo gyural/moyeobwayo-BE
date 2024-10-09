@@ -33,4 +33,3 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
 //파티 리스트를 KakaoProfile_KakaoUserId 를 통해 가져오고싶어
 
     }
-

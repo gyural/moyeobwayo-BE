@@ -11,10 +11,17 @@ import java.util.Date;
 import java.util.List;
 
 public interface TimeslotRepository extends JpaRepository<Timeslot, Integer> {
+
+    // 특정 날짜와 시간에 해당하는 사용자를 조회
     @Query("SELECT t.userEntity FROM Timeslot t WHERE t.date.date_id = :dateId AND :selectedTime BETWEEN t.selected_start_time AND t.selected_end_time")
     List<UserEntity> findUsersByDateAndTime(
             @Param("dateId") int dateId,
             @Param("selectedTime") Date selectedTime);
 
-    List<Timeslot> findAllByDate(DateEntity date); // 임시 추가(심동근)
+    // 특정 날짜에 해당하는 타임슬롯 조회
+    List<Timeslot> findAllByDate(DateEntity date);
+
+    // 특정 파티에 속한 타임슬롯 조회
+    @Query("SELECT t FROM Timeslot t JOIN t.date d WHERE d.party.party_id = :partyId")
+    List<Timeslot> findAllByPartyId(@Param("partyId") String partyId); // partyId String으로 수정
 }

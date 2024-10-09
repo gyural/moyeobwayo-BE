@@ -39,4 +39,3 @@ public class TimeSlot {
         this.end = end;
     }
 }
-
