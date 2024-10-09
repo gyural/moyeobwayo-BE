@@ -18,8 +18,8 @@ public class KakaoProfile {
     private String access_token;
     private String refresh_token;
 
-    private boolean kakao_message_allow;
-    private boolean alarm_off;
+    private boolean kakao_message_allow = true;
+    private boolean alarm_off = true;
 
     private Long expires_in;  // 액세스 토큰 만료 시간 (초 단위)
     private Long refresh_token_expires_in;  // 리프레시 토큰 만료 시간 (초 단위)

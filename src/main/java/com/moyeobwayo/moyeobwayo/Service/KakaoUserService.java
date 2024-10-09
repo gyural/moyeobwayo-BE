@@ -11,6 +11,7 @@ import com.moyeobwayo.moyeobwayo.Repository.KakaoProfileRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -338,12 +339,26 @@ public class KakaoUserService {
 
         // 5의 배수로 내림
         int nearestMultipleOfFive = (int) (Math.floor(differenceInMinutes / 5.0) * 5);
-        if(nearestMultipleOfFive > 10){
+        if (nearestMultipleOfFive > 10) {
             nearestMultipleOfFive = nearestMultipleOfFive - 5;
-        }else{
+        } else {
             nearestMultipleOfFive = 10;
         }
         return nearestMultipleOfFive;
+    }
+    @Transactional
+    public boolean updateKakaoUserSettings(Long kakaoUserId, boolean kakaoMessageAllow, boolean alarmOff) {
+        Optional<KakaoProfile> optionalProfile = kakaoProfileRepository.findById(kakaoUserId);
+        if (optionalProfile.isEmpty()) {
+            return false;
+        }
+
+        KakaoProfile kakaoProfile = optionalProfile.get();
+        kakaoProfile.setKakao_message_allow(kakaoMessageAllow);  // 전달받은 값으로 설정
+        kakaoProfile.setAlarm_off(alarmOff);                     // 전달받은 값으로 설정
+
+        kakaoProfileRepository.save(kakaoProfile);  // DB에 저장하여 반영
+        return true;
     }
 }
 
