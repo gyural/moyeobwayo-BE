@@ -2,6 +2,7 @@ package com.moyeobwayo.moyeobwayo.Controller;
 
 import com.moyeobwayo.moyeobwayo.Domain.KakaoProfile;
 import com.moyeobwayo.moyeobwayo.Domain.request.KakaoUserCreateRequest;
+import com.moyeobwayo.moyeobwayo.Domain.request.KakaoUserUpdateRequest;
 import com.moyeobwayo.moyeobwayo.Domain.request.LinkRequest;
 import com.moyeobwayo.moyeobwayo.Service.KakaoUserService;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,24 @@ public class KakaoUserController {
                 return ResponseEntity.ok("Kakao user successfully linked with the existing user.");
             } else {
                 return ResponseEntity.badRequest().body("Failed to link Kakao user. Please check the provided IDs.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/refuse")
+    public ResponseEntity<?> updateKakaoUserSettings(@RequestBody KakaoUserUpdateRequest request) {
+        try {
+            boolean isUpdated = kakaoUserService.updateKakaoUserSettings(
+                    request.getKakao_user_id(),
+                    request.isKakao_message_allow(),
+                    request.isAlarm_off()
+            );
+            if (isUpdated) {
+                return ResponseEntity.ok("Kakao user settings updated successfully.");
+            } else {
+                return ResponseEntity.badRequest().body("Failed to update Kakao user settings. Please check the provided ID.");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());

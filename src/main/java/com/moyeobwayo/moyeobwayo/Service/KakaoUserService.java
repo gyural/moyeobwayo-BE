@@ -11,6 +11,7 @@ import com.moyeobwayo.moyeobwayo.Repository.KakaoProfileRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -275,10 +276,10 @@ public class KakaoUserService {
         // ★ 여기서 id를 설정할 때, 정확하게 `longValue()`를 사용하여 변환합니다.
         if (body.get("id") instanceof Integer) {
             // 만약 `id` 값이 Integer일 경우 Long으로 명시적으로 변환
-            kakaoProfile.setKakao_user_id(((Integer) body.get("id")).longValue());
+            kakaoProfile.setKakaoUserId(((Integer) body.get("id")).longValue());
         } else if (body.get("id") instanceof Long) {
             // 만약 `id` 값이 이미 Long 타입이라면 그대로 사용
-            kakaoProfile.setKakao_user_id((Long) body.get("id"));
+            kakaoProfile.setKakaoUserId((Long) body.get("id"));
         } else {
             // 예상치 못한 타입일 경우 예외 처리
             throw new IllegalArgumentException("Unexpected ID type: " + body.get("id").getClass());
@@ -300,7 +301,7 @@ public class KakaoUserService {
     }
 
     // 🌟 새로운 linkUserToKakaoWithKakaoId 메서드
-    public boolean linkUserToKakaoWithKakaoId(int currentUserId, int partyId, Long kakaoUserId) {
+    public boolean linkUserToKakaoWithKakaoId(int currentUserId, String partyId, Long kakaoUserId) {
         // 1. 전달받은 currentUserId와 partyId로 UserEntity 조회
         Optional<UserEntity> userOptional = userEntityRepository.findByIdAndPartyId(currentUserId, partyId);
         if (userOptional.isEmpty()) {
@@ -338,12 +339,26 @@ public class KakaoUserService {
 
         // 5의 배수로 내림
         int nearestMultipleOfFive = (int) (Math.floor(differenceInMinutes / 5.0) * 5);
-        if(nearestMultipleOfFive > 10){
+        if (nearestMultipleOfFive > 10) {
             nearestMultipleOfFive = nearestMultipleOfFive - 5;
-        }else{
+        } else {
             nearestMultipleOfFive = 10;
         }
         return nearestMultipleOfFive;
+    }
+    @Transactional
+    public boolean updateKakaoUserSettings(Long kakaoUserId, boolean kakaoMessageAllow, boolean alarmOff) {
+        Optional<KakaoProfile> optionalProfile = kakaoProfileRepository.findById(kakaoUserId);
+        if (optionalProfile.isEmpty()) {
+            return false;
+        }
+
+        KakaoProfile kakaoProfile = optionalProfile.get();
+        kakaoProfile.setKakao_message_allow(kakaoMessageAllow);  // 전달받은 값으로 설정
+        kakaoProfile.setAlarm_off(alarmOff);                     // 전달받은 값으로 설정
+
+        kakaoProfileRepository.save(kakaoProfile);  // DB에 저장하여 반영
+        return true;
     }
 }
 
