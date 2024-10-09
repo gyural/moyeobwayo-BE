@@ -22,7 +22,7 @@ public class TimeslotController {
     // 같은 party_id를 가진 타임슬롯 조회 (특정 파티에 속한 타임슬롯)
     // [GET] /api/v1/timeslots/party/{party_id}
     @GetMapping("/party/{party_id}")
-    public ResponseEntity<List<TimeslotResponseDTO>> getTimeslotsByPartyId(@PathVariable int party_id) {
+    public ResponseEntity<List<TimeslotResponseDTO>> getTimeslotsByPartyId(@PathVariable String party_id) {
         List<TimeslotResponseDTO> timeslots = timeslotService.getTimeslotsByPartyId(party_id);
         return ResponseEntity.ok(timeslots);
     }
@@ -37,7 +37,7 @@ public class TimeslotController {
                 createdTimeslot.getSelected_start_time(),
                 createdTimeslot.getSelected_end_time(),
                 createdTimeslot.getUserEntity() != null ? createdTimeslot.getUserEntity().getUser_id() : 0,
-                createdTimeslot.getDate() != null && createdTimeslot.getDate().getParty() != null ? createdTimeslot.getDate().getParty().getParty_id() : 0,
+                createdTimeslot.getDate() != null && createdTimeslot.getDate().getParty() != null ? createdTimeslot.getDate().getParty().getParty_id() : "0",
                 createdTimeslot.getDate() != null ? createdTimeslot.getDate().getDate_id() : 0
         );
         return ResponseEntity.status(201).body(response);
@@ -53,7 +53,7 @@ public class TimeslotController {
                 updatedTimeslot.getSelected_start_time(),
                 updatedTimeslot.getSelected_end_time(),
                 updatedTimeslot.getUserEntity() != null ? updatedTimeslot.getUserEntity().getUser_id() : 0,
-                updatedTimeslot.getDate() != null && updatedTimeslot.getDate().getParty() != null ? updatedTimeslot.getDate().getParty().getParty_id() : 0,
+                updatedTimeslot.getDate() != null && updatedTimeslot.getDate().getParty() != null ? updatedTimeslot.getDate().getParty().getParty_id() : "0",
                 updatedTimeslot.getDate() != null ? updatedTimeslot.getDate().getDate_id() : 0
         );
         return ResponseEntity.ok(response);

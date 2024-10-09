@@ -9,7 +9,6 @@ import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import com.moyeobwayo.moyeobwayo.Repository.DateEntityRepsitory;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,13 +25,15 @@ public class TimeslotService {
         this.dateEntityRepsitory = dateEntityRepsitory;
     }
 
-    public List<TimeslotResponseDTO> getTimeslotsByPartyId(int partyId) {
+    // 특정 파티에 속한 타임슬롯 조회
+    public List<TimeslotResponseDTO> getTimeslotsByPartyId(String partyId) {
         List<Timeslot> timeslots = timeslotRepository.findAllByPartyId(partyId);
         return timeslots.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    // 타임슬롯 생성
     public Timeslot createTimeslot(Timeslot timeslot) {
         if (timeslot.getUserEntity() == null || timeslot.getDate() == null) {
             throw new IllegalArgumentException("userEntity와 date는 필수 입력 항목입니다.");
@@ -42,23 +43,19 @@ public class TimeslotService {
             throw new IllegalArgumentException("시작 시간은 종료 시간보다 이전이어야 합니다.");
         }
 
-        try {
-            UserEntity user = userEntityRepository.findById(timeslot.getUserEntity().getUser_id())
-                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + timeslot.getUserEntity().getUser_id()));
+        UserEntity user = userEntityRepository.findById((long) timeslot.getUserEntity().getUser_id())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + timeslot.getUserEntity().getUser_id()));
 
-            DateEntity date = dateEntityRepsitory.findById(timeslot.getDate().getDate_id())
-                    .orElseThrow(() -> new IllegalArgumentException("날짜를 찾을 수 없습니다: " + timeslot.getDate().getDate_id()));
+        DateEntity date = dateEntityRepsitory.findById(timeslot.getDate().getDate_id())
+                .orElseThrow(() -> new IllegalArgumentException("날짜를 찾을 수 없습니다: " + timeslot.getDate().getDate_id()));
 
-            timeslot.setUserEntity(user);
-            timeslot.setDate(date);
+        timeslot.setUserEntity(user);
+        timeslot.setDate(date);
 
-            return timeslotRepository.save(timeslot);
-        } catch (Exception e) {
-            System.err.println("타임슬롯 생성 중 오류 발생: " + e.getMessage());
-            throw new RuntimeException("타임슬롯 생성 중 오류가 발생했습니다: " + e.getMessage());
-        }
+        return timeslotRepository.save(timeslot);
     }
 
+    // 타임슬롯 수정
     public Timeslot updateTimeslot(int id, Timeslot updatedTimeslot) {
         Timeslot existingTimeslot = timeslotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("타임 슬롯을 찾을 수 없습니다."));
@@ -73,6 +70,7 @@ public class TimeslotService {
         return timeslotRepository.save(existingTimeslot);
     }
 
+    // 타임슬롯 삭제
     public void deleteTimeslot(int id) {
         if (!timeslotRepository.existsById(id)) {
             throw new RuntimeException("타임 슬롯을 찾을 수 없습니다.");
@@ -80,13 +78,14 @@ public class TimeslotService {
         timeslotRepository.deleteById(id);
     }
 
+    // Timeslot 객체를 TimeslotResponseDTO로 변환
     private TimeslotResponseDTO convertToDTO(Timeslot timeslot) {
         return new TimeslotResponseDTO(
                 timeslot.getSlot_id(),
                 timeslot.getSelected_start_time(),
                 timeslot.getSelected_end_time(),
                 timeslot.getUserEntity() != null ? timeslot.getUserEntity().getUser_id() : 0,
-                timeslot.getDate() != null && timeslot.getDate().getParty() != null ? timeslot.getDate().getParty().getParty_id() : 0,
+                timeslot.getDate() != null && timeslot.getDate().getParty() != null ? timeslot.getDate().getParty().getParty_id() : "0",
                 timeslot.getDate() != null ? timeslot.getDate().getDate_id() : 0
         );
     }
