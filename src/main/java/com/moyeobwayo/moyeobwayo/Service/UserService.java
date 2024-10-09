@@ -21,7 +21,7 @@ public class UserService {
     }
 
     // 로그인 로직: 파티 내 중복 이름 확인 및 로그인 처리
-    public Optional<UserEntity> login(String userName, String password, int partyId) {
+    public Optional<UserEntity> login(String userName, String password, String partyId) {
         // 파티 ID로 해당 파티 조회
         Optional<Party> partyOptional = partyRepository.findById(partyId);
         if (partyOptional.isEmpty()) {
