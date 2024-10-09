@@ -37,9 +37,8 @@ public class PartyController {
             @ApiResponse(responseCode = "404", description = "Party not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-  
     @PostMapping("/complete/{id}")  // URL에서 id를 경로 변수로 받음
-    public ResponseEntity<?> completeParty(@PathVariable int id, @RequestBody PartyCompleteRequest partyCompleteRequest) {
+    public ResponseEntity<?> completeParty(@PathVariable("id") String id, @RequestBody PartyCompleteRequest partyCompleteRequest) {
         return partyService.partyComplete(id, partyCompleteRequest);
     }
 
@@ -60,10 +59,27 @@ public class PartyController {
      * @param id
      * @return
      */
+//    @GetMapping("/{id}")
+//    public ResponseEntity<?> getParty(@PathVariable int id) {
+//        List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(id);
+//        return ResponseEntity.ok(availableTimes);
+//    }
     @GetMapping("/{id}")
-    public ResponseEntity<?> getParty(@PathVariable int id) {
+    public ResponseEntity<?> getParty(@PathVariable String id) {
         List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(id);
         return ResponseEntity.ok(availableTimes);
+    }
+
+    /**
+     * 파티 수정
+     * PUT api/v1/party/update/{partyId}
+     * @param partyId
+     * @param partyUpdateRequest
+     * @return
+     */
+    @PutMapping("/update/{partyId}")
+    public ResponseEntity<?> updateParty(@PathVariable String partyId, @RequestBody PartyCreateRequest partyUpdateRequest) {
+        return partyService.updateParty(partyId, partyUpdateRequest);
     }
 
 }

@@ -47,5 +47,4 @@ public class KakaoUserPartyController {
             return ResponseEntity.status(500).body("서버 오류: " + e.getMessage());
         }
     }
-    @DeleteMapping("/meetlist/")
 }
