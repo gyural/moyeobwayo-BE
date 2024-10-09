@@ -22,4 +22,15 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
     // 특정 ID와 Party ID로 UserEntity 찾기
     @Query("SELECT u FROM UserEntity u WHERE u.user_id = :currentUserId AND u.party.party_id = :partyId")
     Optional<UserEntity> findByIdAndPartyId(@Param("currentUserId") int currentUserId, @Param("partyId") int partyId);
-}
+
+
+    //Optional<UserEntity> findByKakaoProfile_KakaoUserId(Long kakaoUserId); // Optional로 변경
+
+
+//    @Query("SELECT u.party FROM UserEntity u WHERE u.kakaoProfile.kakao_user_id = :kakaoUserId")
+  //  List<Party> findUserEntitiesPartiesByKakaoProfile_KakaoUserId(@Param("kakaoUserId") Long kakaoUserId);
+    List<UserEntity> findUserEntitiesByKakaoProfile_KakaoUserId(Long kakaoUserId);
+//파티 리스트를 KakaoProfile_KakaoUserId 를 통해 가져오고싶어
+
+    }
+

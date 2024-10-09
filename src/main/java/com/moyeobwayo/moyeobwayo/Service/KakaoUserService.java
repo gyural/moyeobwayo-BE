@@ -83,7 +83,7 @@ public class KakaoUserService {
                 System.out.println("Error: 401 Unauthorized - Access token may be invalid or expired. Attempting to refresh the token.");
             } else if (statusCode == 403) {
                 refreshKakaoAccToken(kakaoUser);
-                Long targetID = kakaoUser.getKakao_user_id();
+                Long targetID = kakaoUser.getKakaoUserId();
                 Optional<KakaoProfile> newKakaoProfile = kakaoProfileRepository.findById(targetID);
                 if (newKakaoProfile.isPresent()) {
                     if(kakaoUser.getAccess_token() == newKakaoProfile.get().getAccess_token()){
@@ -233,10 +233,10 @@ public class KakaoUserService {
         // ★ 여기서 id를 설정할 때, 정확하게 `longValue()`를 사용하여 변환합니다.
         if (body.get("id") instanceof Integer) {
             // 만약 `id` 값이 Integer일 경우 Long으로 명시적으로 변환
-            kakaoProfile.setKakao_user_id(((Integer) body.get("id")).longValue());
+            kakaoProfile.setKakaoUserId(((Integer) body.get("id")).longValue());
         } else if (body.get("id") instanceof Long) {
             // 만약 `id` 값이 이미 Long 타입이라면 그대로 사용
-            kakaoProfile.setKakao_user_id((Long) body.get("id"));
+            kakaoProfile.setKakaoUserId((Long) body.get("id"));
         } else {
             // 예상치 못한 타입일 경우 예외 처리
             throw new IllegalArgumentException("Unexpected ID type: " + body.get("id").getClass());
