@@ -28,7 +28,7 @@ public class Party {
     @Column(name = "end_date") // jpa를 통한 삭제를 위해(카멜형으로)
     private Date endDate;
     private Date decision_date;
-    private int user_id; // 새롭게 추가
+    private String user_id; // 새롭게 추가
 
     @OneToMany(mappedBy = "party")
     private List<Alarm> alarms;
