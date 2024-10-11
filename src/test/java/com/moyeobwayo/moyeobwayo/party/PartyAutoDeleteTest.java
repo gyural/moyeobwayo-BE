@@ -46,7 +46,7 @@
 //        partyRepository.save(futureParty);
 //
 //        // Step 3: 자동 삭제 메서드 실행
-//        partyService.deleteExpiredParties();
+//        //partyService.deleteExpiredParties();
 //
 //        // Step 4: 만료된 파티가 삭제되었는지 검증
 //        List<Party> remainingParties = partyRepository.findAll();

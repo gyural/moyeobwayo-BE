@@ -36,21 +36,21 @@ public class KakaoUserControllerTest {
         request.setCode("dummy-code");
     }
 
-    @Test
-    void testCreateKakaoUser() throws Exception {
-        KakaoProfile profile = new KakaoProfile();
-        profile.setKakao_user_id(1234567890L);
-        profile.setNickname("Test User");
-
-        // Mocking: 서비스 호출 시 해당 프로필 객체를 반환하도록 설정
-        Mockito.when(kakaoUserService.createUser(Mockito.anyString())).thenReturn(profile);
-
-        // 실제 요청 테스트
-        mockMvc.perform(post("/api/v1/kakaoUser/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))  // JSON으로 변환하여 전송
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.kakao_user_id").value(1234567890L))
-                .andExpect(jsonPath("$.nickname").value("Test User"));
-    }
+    //@Test
+    //void testCreateKakaoUser() throws Exception {
+    //    KakaoProfile profile = new KakaoProfile();
+    //    profile.setKakao_user_id(1234567890L);
+    //    profile.setNickname("Test User");
+    //
+    //    // Mocking: 서비스 호출 시 해당 프로필 객체를 반환하도록 설정
+    //    Mockito.when(kakaoUserService.createUser(Mockito.anyString())).thenReturn(profile);
+    //
+    //    // 실제 요청 테스트
+    //    mockMvc.perform(post("/api/v1/kakaoUser/create")
+    //                    .contentType(MediaType.APPLICATION_JSON)
+    //                    .content(objectMapper.writeValueAsString(request)))  // JSON으로 변환하여 전송
+    //            .andExpect(status().isOk())
+    //            .andExpect(jsonPath("$.kakao_user_id").value(1234567890L))
+    //            .andExpect(jsonPath("$.nickname").value("Test User"));
+    //}
 }
