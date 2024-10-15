@@ -1,6 +1,7 @@
 package com.moyeobwayo.moyeobwayo.Controller;
 
 import com.moyeobwayo.moyeobwayo.Domain.Timeslot;
+import com.moyeobwayo.moyeobwayo.Domain.dto.TimeslotRequestDTO;
 import com.moyeobwayo.moyeobwayo.Domain.dto.TimeslotResponseDTO;
 import com.moyeobwayo.moyeobwayo.Service.TimeslotService;
 import org.springframework.http.ResponseEntity;
@@ -30,32 +31,24 @@ public class TimeslotController {
     // 타임슬롯 생성 (유저가 날짜 투표)
     // [POST] /api/v1/timeslots
     @PostMapping
-    public ResponseEntity<TimeslotResponseDTO> createTimeslot(@RequestBody Timeslot timeslot) {
-        Timeslot createdTimeslot = timeslotService.createTimeslot(timeslot);
-        TimeslotResponseDTO response = new TimeslotResponseDTO(
-                createdTimeslot.getSlot_id(),
-                createdTimeslot.getSelected_start_time(),
-                createdTimeslot.getSelected_end_time(),
-                createdTimeslot.getUserEntity() != null ? createdTimeslot.getUserEntity().getUser_id() : 0,
-                createdTimeslot.getDate() != null && createdTimeslot.getDate().getParty() != null ? createdTimeslot.getDate().getParty().getPartyId() : "0",
-                createdTimeslot.getDate() != null ? createdTimeslot.getDate().getDate_id() : 0
-        );
+    public ResponseEntity<TimeslotResponseDTO> createTimeslot(@RequestBody TimeslotRequestDTO timeslotRequestDTO) {
+        TimeslotResponseDTO response = timeslotService.createTimeslot(timeslotRequestDTO);
         return ResponseEntity.status(201).body(response);
     }
 
     // 타임슬롯 수정 (날짜 투표 수정)
     // [PUT] /api/v1/timeslots/{timeslot_id}
     @PutMapping("/{timeslot_id}")
-    public ResponseEntity<TimeslotResponseDTO> updateTimeslot(@PathVariable int timeslot_id, @RequestBody Timeslot timeslot) {
-        Timeslot updatedTimeslot = timeslotService.updateTimeslot(timeslot_id, timeslot);
-        TimeslotResponseDTO response = new TimeslotResponseDTO(
-                updatedTimeslot.getSlot_id(),
-                updatedTimeslot.getSelected_start_time(),
-                updatedTimeslot.getSelected_end_time(),
-                updatedTimeslot.getUserEntity() != null ? updatedTimeslot.getUserEntity().getUser_id() : 0,
-                updatedTimeslot.getDate() != null && updatedTimeslot.getDate().getParty() != null ? updatedTimeslot.getDate().getParty().getPartyId() : "0",
-                updatedTimeslot.getDate() != null ? updatedTimeslot.getDate().getDate_id() : 0
+    public ResponseEntity<TimeslotResponseDTO> updateTimeslot(
+            @PathVariable int timeslot_id,
+            @RequestBody TimeslotRequestDTO timeslotRequestDTO) {
+
+        TimeslotResponseDTO response = timeslotService.updateTimeslot(
+                timeslot_id,
+                timeslotRequestDTO.getSelected_start_time(),
+                timeslotRequestDTO.getSelected_end_time()
         );
+
         return ResponseEntity.ok(response);
     }
 

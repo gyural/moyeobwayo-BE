@@ -3,12 +3,14 @@ package com.moyeobwayo.moyeobwayo.Service;
 import com.moyeobwayo.moyeobwayo.Domain.Timeslot;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Domain.DateEntity;
+import com.moyeobwayo.moyeobwayo.Domain.dto.TimeslotRequestDTO;
 import com.moyeobwayo.moyeobwayo.Domain.dto.TimeslotResponseDTO;
 import com.moyeobwayo.moyeobwayo.Repository.TimeslotRepository;
 import com.moyeobwayo.moyeobwayo.Repository.UserEntityRepository;
 import com.moyeobwayo.moyeobwayo.Repository.DateEntityRepsitory;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,40 +36,36 @@ public class TimeslotService {
     }
 
     // 타임슬롯 생성
-    public Timeslot createTimeslot(Timeslot timeslot) {
-        if (timeslot.getUserEntity() == null || timeslot.getDate() == null) {
-            throw new IllegalArgumentException("userEntity와 date는 필수 입력 항목입니다.");
-        }
+    public TimeslotResponseDTO createTimeslot(TimeslotRequestDTO dto) {
+        UserEntity user = userEntityRepository.findById((long) dto.getUser_id())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + dto.getUser_id()));
+        DateEntity date = dateEntityRepsitory.findById(dto.getDate_id())
+                .orElseThrow(() -> new IllegalArgumentException("날짜를 찾을 수 없습니다: " + dto.getDate_id()));
 
-        if (timeslot.getSelected_start_time().after(timeslot.getSelected_end_time())) {
-            throw new IllegalArgumentException("시작 시간은 종료 시간보다 이전이어야 합니다.");
-        }
-
-        UserEntity user = userEntityRepository.findById((long) timeslot.getUserEntity().getUser_id())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + timeslot.getUserEntity().getUser_id()));
-
-        DateEntity date = dateEntityRepsitory.findById(timeslot.getDate().getDate_id())
-                .orElseThrow(() -> new IllegalArgumentException("날짜를 찾을 수 없습니다: " + timeslot.getDate().getDate_id()));
-
+        Timeslot timeslot = new Timeslot();
+        timeslot.setSelected_start_time(dto.getSelected_start_time());
+        timeslot.setSelected_end_time(dto.getSelected_end_time());
         timeslot.setUserEntity(user);
         timeslot.setDate(date);
 
-        return timeslotRepository.save(timeslot);
+        Timeslot createdTimeslot = timeslotRepository.save(timeslot);
+        return convertToDTO(createdTimeslot);
     }
 
     // 타임슬롯 수정
-    public Timeslot updateTimeslot(int id, Timeslot updatedTimeslot) {
+    public TimeslotResponseDTO updateTimeslot(int id, Date selectedStartTime, Date selectedEndTime) {
         Timeslot existingTimeslot = timeslotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("타임 슬롯을 찾을 수 없습니다."));
 
-        if (updatedTimeslot.getSelected_start_time().after(updatedTimeslot.getSelected_end_time())) {
+        if (selectedStartTime.after(selectedEndTime)) {
             throw new IllegalArgumentException("시작 시간은 종료 시간보다 이전이어야 합니다.");
         }
 
-        existingTimeslot.setSelected_start_time(updatedTimeslot.getSelected_start_time());
-        existingTimeslot.setSelected_end_time(updatedTimeslot.getSelected_end_time());
+        existingTimeslot.setSelected_start_time(selectedStartTime);
+        existingTimeslot.setSelected_end_time(selectedEndTime);
 
-        return timeslotRepository.save(existingTimeslot);
+        Timeslot updatedTimeslot = timeslotRepository.save(existingTimeslot);
+        return convertToDTO(updatedTimeslot);
     }
 
     // 타임슬롯 삭제
@@ -84,9 +82,9 @@ public class TimeslotService {
                 timeslot.getSlot_id(),
                 timeslot.getSelected_start_time(),
                 timeslot.getSelected_end_time(),
-                timeslot.getUserEntity() != null ? timeslot.getUserEntity().getUser_id() : 0,
-                timeslot.getDate() != null && timeslot.getDate().getParty() != null ? timeslot.getDate().getParty().getPartyId() : "0",
-                timeslot.getDate() != null ? timeslot.getDate().getDate_id() : 0
+                timeslot.getUserEntity().getUser_id(),
+                timeslot.getDate().getParty().getPartyId(),
+                timeslot.getDate().getDate_id()
         );
     }
 }
