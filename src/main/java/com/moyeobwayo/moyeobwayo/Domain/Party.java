@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Party {
 
     @Id
-    private String party_id = UUID.randomUUID().toString();  // UUID를 기본 값으로 설정
+    private String partyId = UUID.randomUUID().toString();  // UUID를 기본 값으로 설정
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     // private int party_id;
 
