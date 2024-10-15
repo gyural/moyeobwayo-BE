@@ -16,7 +16,7 @@ public class Alarm {
 
     private boolean alarm_on = true;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id")
     @JsonIgnore  // 순환 참조 방지
     private UserEntity userEntity;

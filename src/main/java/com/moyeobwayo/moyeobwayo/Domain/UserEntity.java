@@ -23,9 +23,9 @@ public class UserEntity {
     private String user_name;
     private String password;
 
-    @OneToMany(mappedBy = "userEntity")
+    @OneToOne(mappedBy = "userEntity")
     @JsonIgnore  // 순환 참조 방지
-    private List<Alarm> alarms;
+    private Alarm alarm;
 
     //양방향 관계 필요 없고 무한루프를 유발함
     //@OneToMany(mappedBy = "userEntity")
