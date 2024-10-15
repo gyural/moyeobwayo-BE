@@ -1,11 +1,13 @@
 package com.moyeobwayo.moyeobwayo.Service;
 
-import com.moyeobwayo.moyeobwayo.Domain.*;
+import com.moyeobwayo.moyeobwayo.Domain.DateEntity;
+import com.moyeobwayo.moyeobwayo.Domain.Party;
+import com.moyeobwayo.moyeobwayo.Domain.Timeslot;
+import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
 import com.moyeobwayo.moyeobwayo.Domain.dto.TimeSlot;
 import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCompleteRequest;
 import com.moyeobwayo.moyeobwayo.Domain.request.party.PartyCreateRequest;
 import com.moyeobwayo.moyeobwayo.Repository.*;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.moyeobwayo.moyeobwayo.Domain.dto.AvailableTime;
@@ -29,46 +31,19 @@ public class PartyService {
     private TimeslotRepository timeslotRepository;
     private DateEntityRepsitory dateEntityRepsitory;
     private KakaoUserService kakaoUserService;
-    private AlarmRepository alarmRepository;
 
     // 의존성 주입
     public PartyService(PartyRepository partyRepository,
                         UserEntityRepository userRepository,
                         TimeslotRepository timeslotRepository,
                         DateEntityRepsitory dateEntityRepsitory,
-                        KakaoUserService kakaoUserService,
-                        PartyStringIdRepository partyStringIdRepository,
-                        AlarmRepository alarmRepository) {
+                        KakaoUserService kakaoUserService, PartyStringIdRepository partyStringIdRepository) {
         this.partyRepository = partyRepository;
         this.userRepository = userRepository;
         this.timeslotRepository = timeslotRepository;
         this.dateEntityRepsitory = dateEntityRepsitory;
         this.kakaoUserService = kakaoUserService;
         this.partyStringIdRepository = partyStringIdRepository;
-        this.alarmRepository = alarmRepository;
-    }
-
-    public void updateAlarmStatus(String partyId, String alarmStatus) {
-        // partyId로 Alarm 객체 조회
-        Optional<Alarm> alarmOptional = alarmRepository.findAlarmByParty_PartyId(partyId);
-
-        if (alarmOptional.isPresent()) {
-            Alarm alarm = alarmOptional.get();
-
-            // "on" 또는 "off" 값에 따라 알람 상태를 설정
-            if ("on".equalsIgnoreCase(alarmStatus)) {
-                alarm.setAlarm_on(true);
-            } else if ("off".equalsIgnoreCase(alarmStatus)) {
-                alarm.setAlarm_on(false);
-            } else {
-                throw new IllegalArgumentException("Invalid alarm status value: " + alarmStatus);
-            }
-
-            // 변경 사항 저장
-            alarmRepository.save(alarm);
-        } else {
-            throw new EntityNotFoundException("Alarm for Party with ID " + partyId + " not found.");
-        }
     }
 
     /**
@@ -139,7 +114,7 @@ public class PartyService {
     // 파티내의 목표시간에 가능한 유저리스트 반환
     public List<UserEntity> getPossibleUsers(Party party, Date targetDate) {
         // DateID 조회
-        Integer targetDateID = dateEntityRepsitory.findDateIdByPartyAndSelectedDate(party.getPartyId(), targetDate);  // 이제 String으로 처리
+        Integer targetDateID = dateEntityRepsitory.findDateIdByPartyAndSelectedDate(party.getParty_id(), targetDate);  // 이제 String으로 처리
         if (targetDateID == null) {
             System.out.println("targetDateID is null");
             return new ArrayList<>();  // 빈 배열 반환
@@ -187,7 +162,7 @@ public class PartyService {
             party= partyRepository.save(party); // db에 저장 후 저장된 객체 반환(자동 생성된 id를 가져오기 위해)
 
             // 방금 생성한 Party 테이블 튜플의 pk 가져오기
-            String party_id = party.getPartyId();
+            String party_id = party.getParty_id();
 
             // Party의 pk와 List<Date>를 이용하여 date_entity 테이블에 삽입
             List<DateEntity> dateEntities = new ArrayList<>();
@@ -351,32 +326,4 @@ public class PartyService {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
-
-
-    public void disconnectUserFromParty(String partyId) {
-        // 파티 ID로 KakaoUserId 조회
-        Optional<Long> kakaoUserIdOptional = userRepository.findKakaoIDByPartyId(partyId);
-
-        if (kakaoUserIdOptional.isPresent()) {
-            Long kakaoUserId = kakaoUserIdOptional.get();
-
-            // KakaoUserId로 UserEntity 조회
-            Optional<UserEntity> userOptional = userRepository.findByKakaoProfile_KakaoUserId(kakaoUserId);
-
-            if (userOptional.isPresent()) {
-                UserEntity userEntity = userOptional.get();
-                // 파티와의 연결을 해제
-                userEntity.setParty(null);
-                // 카카오 프로필과의 연결을 해제 (필요하다면)
-                userEntity.setKakaoProfile(null);
-                // 업데이트된 정보를 저장
-                userRepository.save(userEntity);
-            } else {
-                throw new EntityNotFoundException("User with kakaoUserId " + kakaoUserId + " not found.");
-            }
-        } else {
-            throw new EntityNotFoundException("User with partyId " + partyId + " not found.");
-        }
-    }
-
 }
