@@ -53,7 +53,7 @@ public class TimeslotServiceTest {
         timeslot.setSelected_start_time(startTime);
         timeslot.setSelected_end_time(endTime);
 
-        Mockito.when(userEntityRepository.findById(9)).thenReturn(Optional.of(user));
+        Mockito.when(userEntityRepository.findById(9L)).thenReturn(Optional.of(user));
         Mockito.when(dateEntityRepsitory.findById(2)).thenReturn(Optional.of(date));
         Mockito.when(timeslotRepository.save(Mockito.any(Timeslot.class))).thenReturn(timeslot);
 

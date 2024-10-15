@@ -34,7 +34,7 @@ public class PartyUpdateTest {
         party.setCurrent_num(0);
         party.setStart_date(new Date());
         party.setEndDate(new Date(System.currentTimeMillis() + 86400000)); // 1일 후
-        party.setUser_id(1234);
+        party.setUser_id("1234");
 
         // 파티 저장
         Party savedParty = partyStringIdRepository.save(party);
@@ -48,7 +48,7 @@ public class PartyUpdateTest {
                 new Date(System.currentTimeMillis() + 172800000), // 종료 날짜 (2일 후)
                 List.of(new Date()), // 날짜 리스트
                 new Date(System.currentTimeMillis() + 86400000), // 확정 날짜 (1일 후)
-                5678 // 변경된 user_id
+                "5678" // 변경된 user_id
         );
 
         // 파티 업데이트 수행
