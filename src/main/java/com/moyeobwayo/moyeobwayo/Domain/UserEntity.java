@@ -34,7 +34,7 @@ public class UserEntity {
 
     @JsonProperty("party")
     @ManyToOne
-    @JoinColumn(name="party_id", nullable = true)
+    @JoinColumn(name="partyId", nullable = true)
     private Party party;
 
 

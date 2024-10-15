@@ -60,7 +60,7 @@ public class UserService {
             newAlarm.setAlarm_on(true);
 
             // 저장 전 알람 객체 정보 확인
-            System.out.println("Alarm Details: User ID: " + newAlarm.getUserEntity().getUser_id() + ", Party ID: " + newAlarm.getParty().getParty_id());
+            System.out.println("Alarm Details: User ID: " + newAlarm.getUserEntity().getUser_id() + ", Party ID: " + newAlarm.getParty().getPartyId());
 
             // 저장 시도
             alarmRepository.save(newAlarm);
