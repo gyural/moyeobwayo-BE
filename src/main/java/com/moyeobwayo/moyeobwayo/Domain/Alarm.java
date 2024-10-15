@@ -12,7 +12,7 @@ public class Alarm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int alarmId;
+    private int alarm_id;
 
     private boolean alarm_on = true;
 

@@ -52,10 +52,10 @@ public class PartyUpdateTest {
         );
 
         // 파티 업데이트 수행
-        partyService.updateParty(savedParty.getPartyId(), updateRequest);
+        partyService.updateParty(savedParty.getParty_id(), updateRequest);
 
         // 수정된 파티 조회
-        Party updatedParty = partyStringIdRepository.findById(savedParty.getPartyId()).orElseThrow();
+        Party updatedParty = partyStringIdRepository.findById(savedParty.getParty_id()).orElseThrow();
 
         // 업데이트 결과 검증
         assertThat(updatedParty.getParty_name()).isEqualTo("Updated Party Name");
