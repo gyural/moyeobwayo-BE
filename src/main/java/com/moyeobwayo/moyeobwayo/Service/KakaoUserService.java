@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import com.moyeobwayo.moyeobwayo.Domain.Alarm;
 import com.moyeobwayo.moyeobwayo.Domain.KakaoProfile;
 import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
@@ -47,10 +49,23 @@ public class KakaoUserService {
     public void sendKakaoCompletMesage(List<UserEntity> users, Party party, Date completeDate) {
         for (UserEntity user : users) {
             // 카카오 유저라면 메시지 보내기 (예: 카카오 API 호출)
-            if (user.getKakaoProfile() != null) {
+            if (validateAlarmState(user)) {
                 sendCompleteMessage(user.getKakaoProfile(), party, completeDate);
             }
         }
+
+    }
+    public boolean validateAlarmState(UserEntity userEntity){
+        //전체 알람이 Off라면 False
+        if(userEntity.getKakaoProfile() == null || userEntity.getKakaoProfile().isAlarm_off() == true){
+            return false;
+        }
+        //해당 알람만 Off라면 False
+        if(userEntity.getAlarm() == null || userEntity.getAlarm().isAlarm_on()==false){
+            return false;
+        }
+
+        return true;
     }
     // 1. Date 객체를 받아 UTC로 변환하는 함수
     public static String convertToUTC(Date date) {
