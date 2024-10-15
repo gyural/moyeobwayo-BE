@@ -28,7 +28,7 @@ public class PartyCreateTest {
         party.setCurrent_num(0); // 현재 인원은 0으로 초기화
         party.setStart_date(new Date());
         party.setEndDate(new Date(System.currentTimeMillis() + 86400000)); // 1일 후
-        party.setUser_id(1234); // 새로 추가된 user_id 필드 설정
+        party.setUser_id("1234"); // 새로 추가된 user_id 필드 설정
 
         // 파티 저장
         Party savedParty = partyStringIdRepository.save(party);
