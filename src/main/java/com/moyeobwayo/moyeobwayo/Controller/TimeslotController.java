@@ -37,7 +37,7 @@ public class TimeslotController {
                 createdTimeslot.getSelected_start_time(),
                 createdTimeslot.getSelected_end_time(),
                 createdTimeslot.getUserEntity() != null ? createdTimeslot.getUserEntity().getUser_id() : 0,
-                createdTimeslot.getDate() != null && createdTimeslot.getDate().getParty() != null ? createdTimeslot.getDate().getParty().getParty_id() : "0",
+                createdTimeslot.getDate() != null && createdTimeslot.getDate().getParty() != null ? createdTimeslot.getDate().getParty().getPartyId() : "0",
                 createdTimeslot.getDate() != null ? createdTimeslot.getDate().getDate_id() : 0
         );
         return ResponseEntity.status(201).body(response);
@@ -53,7 +53,7 @@ public class TimeslotController {
                 updatedTimeslot.getSelected_start_time(),
                 updatedTimeslot.getSelected_end_time(),
                 updatedTimeslot.getUserEntity() != null ? updatedTimeslot.getUserEntity().getUser_id() : 0,
-                updatedTimeslot.getDate() != null && updatedTimeslot.getDate().getParty() != null ? updatedTimeslot.getDate().getParty().getParty_id() : "0",
+                updatedTimeslot.getDate() != null && updatedTimeslot.getDate().getParty() != null ? updatedTimeslot.getDate().getParty().getPartyId() : "0",
                 updatedTimeslot.getDate() != null ? updatedTimeslot.getDate().getDate_id() : 0
         );
         return ResponseEntity.ok(response);

@@ -85,7 +85,7 @@ public class TimeslotService {
                 timeslot.getSelected_start_time(),
                 timeslot.getSelected_end_time(),
                 timeslot.getUserEntity() != null ? timeslot.getUserEntity().getUser_id() : 0,
-                timeslot.getDate() != null && timeslot.getDate().getParty() != null ? timeslot.getDate().getParty().getParty_id() : "0",
+                timeslot.getDate() != null && timeslot.getDate().getParty() != null ? timeslot.getDate().getParty().getPartyId() : "0",
                 timeslot.getDate() != null ? timeslot.getDate().getDate_id() : 0
         );
     }
