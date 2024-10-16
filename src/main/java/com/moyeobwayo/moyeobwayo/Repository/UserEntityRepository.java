@@ -15,31 +15,17 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
     List<UserEntity> findUserEntitiesByParty(Party party);
 
     @Query("SELECT u.kakaoProfile.kakaoUserId FROM UserEntity u WHERE u.party.partyId = :partyId")
-    Optional<Long> findKakaoIDByPartyId(@Param("partyId") String partyId);
+    Optional<Long> findKakaoIDByPartyId(@Param("partyId") String partyId); // ★ partyId가 String으로 처리됨
 
-
-
-    // 특정 이름과 Party ID로 UserEntity 찾기
-    // 수정된 쿼리 메서드: @Param 어노테이션의 변수명을 정확히 맞춤
+    // ★ 파티 ID가 String으로 처리되도록 변경
     @Query("SELECT u FROM UserEntity u WHERE u.user_name = :user_name AND u.party.partyId = :partyId")
     Optional<UserEntity> findUserInSameParty(@Param("user_name") String user_name, @Param("partyId") String partyId);
 
-    // 특정 ID와 Party ID로 UserEntity 찾기
+    // ★ 파티 ID가 String으로 처리되도록 변경
     @Query("SELECT u FROM UserEntity u WHERE u.user_id = :currentUserId AND u.party.partyId = :partyId")
     Optional<UserEntity> findByIdAndPartyId(@Param("currentUserId") int currentUserId, @Param("partyId") String partyId);
 
-//    @Query("SELECT u FROM KakaoProfile u WHERE u.kakaoUserId = :currentUserId AND u.party.party_id = :partyId")
-//    Optional<UserEntity> findByPartyIdAndKakaoUserId(@Param("currentUserId") int currentUserId, @Param("partyId") String partyId);
-
-
-    //Optional<UserEntity> findByKakaoProfile_KakaoUserId(Long kakaoUserId); // Optional로 변경
-
-
-//    @Query("SELECT u.party FROM UserEntity u WHERE u.kakaoProfile.kakao_user_id = :kakaoUserId")
-  //  List<Party> findUserEntitiesPartiesByKakaoProfile_KakaoUserId(@Param("kakaoUserId") Long kakaoUserId);
     List<UserEntity> findUserEntitiesByKakaoProfile_KakaoUserId(Long kakaoUserId);
 
     Optional<UserEntity> findByKakaoProfile_KakaoUserId(Long kakaoUserId);
-//파티 리스트를 KakaoProfile_KakaoUserId 를 통해 가져오고싶어
-
-    }
+}
