@@ -2,6 +2,7 @@ package com.moyeobwayo.moyeobwayo.Controller;
 
 import com.moyeobwayo.moyeobwayo.Domain.Party;
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
+import com.moyeobwayo.moyeobwayo.Domain.request.GetMeetListByKakaoIdRequest;
 import com.moyeobwayo.moyeobwayo.Service.KakaoUserPartyService;
 import com.moyeobwayo.moyeobwayo.Service.PartyService;
 import com.moyeobwayo.moyeobwayo.Service.UserService;
@@ -26,7 +27,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("api/v1/KakaoUser")
+@RequestMapping("api/v1/kakaouser")
 public class KakaoUserPartyController {
 
     private final KakaoUserPartyService kakaoUserPartyService;
@@ -36,24 +37,13 @@ public class KakaoUserPartyController {
         this.kakaoUserPartyService = kakaoUserPartyService;
         this.partyService = partyService;
     }
-    @Getter
-    @Setter
-    public static class ReqData {
-        private Long kakaoUserId;
 
-        // 기본 생성자 추가
-        public ReqData() {}
-
-        public ReqData(Long kakaoUserId) {
-            this.kakaoUserId = kakaoUserId;
-        }
-    }
     @PostMapping("/meetlist")
-    public ResponseEntity<?> getPartyByKakaoUserId(@RequestBody ReqData reqData) {
+    public ResponseEntity<?> getPartyByKakaoUserId(@RequestBody GetMeetListByKakaoIdRequest reqData) {
         try {
             // 서비스에서 kakao_user_id로 Party 조회
             Long KakaoUserId = (long) reqData.getKakaoUserId();
-            List<UserEntity> parties = kakaoUserPartyService.getPartyByKakaoUserId(KakaoUserId);
+            List<Party> parties = kakaoUserPartyService.getPartyByKakaoUserId(KakaoUserId);
             return ResponseEntity.ok(parties);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404).body(e.getMessage());
