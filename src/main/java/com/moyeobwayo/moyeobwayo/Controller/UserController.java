@@ -1,6 +1,7 @@
 package com.moyeobwayo.moyeobwayo.Controller;
 
 import com.moyeobwayo.moyeobwayo.Domain.UserEntity;
+import com.moyeobwayo.moyeobwayo.Domain.response.UserResponse;
 import com.moyeobwayo.moyeobwayo.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest request) {
         // 서비스 호출하여 사용자 인증
-        Optional<UserEntity> user = userService.login(request.getUserName(), request.getPassword(), request.getPartyId(), request.isKakao());
+        Optional<UserResponse> user = userService.loginOrRegister(request.getUserName(), request.getPassword(), request.getPartyId(), request.isKakao());
 
         if (user.isPresent()) {
             // 로그인 성공 시, 사용자 정보를 반환
