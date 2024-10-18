@@ -1,5 +1,6 @@
 package com.moyeobwayo.moyeobwayo.Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class Party {
     private String user_id; // 새롭게 추가
 
     @OneToMany(mappedBy = "party")
+    //@JsonIgnore  // 순환 참조 방지
     private List<Alarm> alarms;
 
     // @OneToMany(mappedBy = "party")
