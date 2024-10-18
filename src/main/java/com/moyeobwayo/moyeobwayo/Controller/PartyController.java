@@ -67,7 +67,7 @@ public class PartyController {
 //        return ResponseEntity.ok(availableTimes);
 //    }
     @GetMapping("/{id}")
-    public ResponseEntity<?> getParty(@PathVariable String id) {
+    public ResponseEntity<?> getParty(@PathVariable("id") String id) {
         Party party = partyService.findPartyById(id);
         List<AvailableTime> availableTimes = partyService.findAvailableTimesForParty(id);
 
