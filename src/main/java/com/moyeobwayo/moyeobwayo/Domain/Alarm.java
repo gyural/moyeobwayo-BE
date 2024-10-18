@@ -23,5 +23,6 @@ public class Alarm {
 
     @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "party_id")
+    @JsonIgnore  // 순환 참조 방지
     private Party party;
 }
