@@ -1,23 +1,7 @@
 ## 만남 스케줄링 도우미 - Moyeobwayo
-<div align="center">
-  <img src="/public/images/moyeobwayo_blue.png" alt="Moyeobwayo" width="150" height="150">
-</div>
-
-## Moyeobwayo
-> 고려대학교 세종캠퍼스 컴퓨터융합소프트웨어학과 개발 모임 <br /> 개발기간: 24.09 ~ 24.11
 
 ## 배포 주소
 > [https://www.moyeobwayo.com/](https://www.moyeobwayo.com/) <br />
-
-## 개발 인원
-- 풀스택: 1명
-- 프론트엔드: 1명
-- 백엔드: 3명
-
-## 핵심 기능
-- 모임 참여 시간 투표 기능
-- 다른 참여자들의 가능한 시간 조회 기능
-- 카카오톡 로그인, 알림톡 수신 기능
 
 ## 프로젝트 설명
 
@@ -62,6 +46,10 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonwebservices&logoColor=white)
 
+## 개발 인원
+- 풀스택: 1명
+- 프론트엔드: 1명
+- 백엔드: 3명
 
 ## 수상
 - [컴퓨터융합소프트웨어학과] 제 26회 학술제 2등
