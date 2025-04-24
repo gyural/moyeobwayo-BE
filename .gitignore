@@ -36,3 +36,11 @@ out/
 config/
 ### VS Code ###
 .vscode/
+
+# 로그 파일 무시
+application.*.log
+application.log
+
+# macOS 시스템 파일 무시
+src/.DS_Store
+.DS_Store
